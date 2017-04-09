@@ -9,14 +9,14 @@ print(device_lib.list_local_devices())
 
 mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
-n_classes = 10
-#batch size to use when loading mnist data (number of images)
+n_classes = 3
+#batch size to use when loading data
 batch_size = 2000
 
 keep_rate = 0.8
 keep_prob = tf.placeholder(tf.float32)
 
-x = tf.placeholder("float", [None, 784]) #28x28 px images flattened
+x = tf.placeholder("float", [None, 1920*1080]) #1920*1080 px images flattened
 y = tf.placeholder("float")
 
 def conv2D(x, W):
