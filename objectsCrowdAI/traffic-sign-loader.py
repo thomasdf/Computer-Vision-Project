@@ -3,22 +3,17 @@ import random
 
 from PIL import Image
 
-from objectsCrowdAI.Loader import base_dir, loadCSV, loadImage, cropImage, dialect
+from objectsCrowdAI.Loader import base_dir, loadCSV
+from objectsCrowdAI.SplitSet import hashSplit
 
 path = base_dir + '/datasets/traffic-signs/GTSRB/Final_Training/Images/'
 save_path = base_dir + '/objectsCrowdAI/csv/'
-def saveCSV(filename, entries):
-	# writer = csv.writer(open(path, 'w'))
-	# for row in data:
-	# 	if counter[row[0]] >= 4:
-	# 		writer.writerow(row)
 
+def saveCSV(filename, entries):
 	with open(save_path + filename, 'w') as file:
 		writer = csv.writer(file, lineterminator='\n')
 		writer.writerow(("Filename", "Width", "Height", "Roi.X1", "Roi.Y1", "Roi.X2", "Roi.Y2", "ClassId"))
 		writer.writerows(entries)
-
-
 
 def concatCSVS():
 	csv_format = path + '000{0:02d}/GT-000{0:02d}.csv'
@@ -45,8 +40,21 @@ def next_batch(num):
 		images.append(image)
 	return images
 
-next_batch(10)
+def testHash():
+	info = loadCSV(save_path + 'signs.csv')
+	n = hashSplit(0.01, len(info))
 
+
+	for i, q in enumerate(n):
+		print(i, q)
+
+	print()
+	print('len:', len(info))
+	print('hash:', len(n))
+	print('set:', len(set(n)))
+
+# next_batch(10)
+testHash()
 # e = concatCSVS()
 # saveCSV('signs.csv', e)
 
