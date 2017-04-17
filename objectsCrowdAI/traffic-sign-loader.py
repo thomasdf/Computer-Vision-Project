@@ -33,9 +33,8 @@ def concatCSVS():
 
 	return csv
 
-
 def next_batch(num):
-	info = concatCSVS()
+	info = loadCSV(save_path + 'signs.csv')
 	num_samples = len(info)
 	images = []
 	for _ in range(num):
@@ -46,10 +45,11 @@ def next_batch(num):
 		images.append(image)
 	return images
 
-# next_batch(10)
+next_batch(10)
 
 # e = concatCSVS()
 # saveCSV('signs.csv', e)
+
 
 
 
