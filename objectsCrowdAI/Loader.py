@@ -55,12 +55,25 @@ def next_batch(num):
     for _ in range(num):
         index = random.randrange(0, num_samples-1)
         xmin, ymin, xmax, ymax, filename, label, url = rowToTuple(info[index])
-        image = loadImage(filename)
         print(xmin, ymin, xmax, ymax, filename, label, url)
+        image = loadImage(filename)
+        image = cropImage(image, xmin, ymin, xmax, ymax)
+        image.show()
+
+
+def cropImage(image, xmin, ymin, xmax, ymax):
+    xmin, ymin, xmax, ymax = int(xmin), int(ymin), int(xmax), int(ymax)
+    left = xmin
+    top = ymin
+    bottom = ymax
+    right = xmax
+    crop_rectangle = (left, top, right, bottom) #left, top, right, bottom
+    image = image.crop(crop_rectangle)
+    print(image.size)
+    return image
 
 def loadImage(name):
     img = Image.open(imagefolder + name)
-    img.show()
     return img
 
 
