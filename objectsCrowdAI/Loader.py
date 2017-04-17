@@ -10,7 +10,7 @@ print(base_dir)
 csvpath = base_dir + '/datasets/object-detection-crowdai/labels.csv'
 print(csvpath)
 imagefolder = base_dir + '/datasets/object-detection-crowdai/'
-
+dialect = None
 
 def loadCSV(csvpath: str):
     res = []
