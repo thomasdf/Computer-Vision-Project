@@ -11,10 +11,13 @@ csvpath = base_dir + '/datasets/object-detection-crowdai/labels.csv'
 print(csvpath)
 imagefolder = base_dir + '/datasets/object-detection-crowdai/'
 
-def loadCSV():
+
+def loadCSV(csvpath: str):
     res = []
     with open(csvpath) as file:
-        reader = csv.reader(file)
+        dialect = csv.Sniffer().sniff(file.read(), delimiters=';,')
+        file.seek(0)
+        reader = csv.reader(file, dialect=dialect)
         for row in reader:
             tuple = []
             for index in row:
@@ -22,7 +25,7 @@ def loadCSV():
             res.append(tuple)
     return res
 
-info = loadCSV()
+info = loadCSV(csvpath)
 num_samples = len(info)
 
 def rowToTuple(row):
@@ -33,6 +36,7 @@ def rowToTuple(row):
     filename = row[4]
     label = row[5]
     url = row[6]
+    # xmin, xmax, ymin, ymax, Frame, Label, Preview URL
     return(xmin, ymin, xmax, ymax, filename, label, url)
 
 def labelToInt(label):
@@ -54,7 +58,7 @@ def intToLabel(int):
 def next_batch(num):
     for _ in range(num):
         index = random.randrange(0, num_samples-1)
-        xmin, ymin, xmax, ymax, filename, label, url = rowToTuple(info[index])
+        xmin, ymin, xmax, ymax, filename, label, url = info[index]
         print(xmin, ymin, xmax, ymax, filename, label, url)
         image = loadImage(filename)
         image = cropImage(image, xmin, ymin, xmax, ymax)
@@ -77,4 +81,4 @@ def loadImage(name):
     return img
 
 
-next_batch(1)
+# next_batch(1)
