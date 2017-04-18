@@ -83,7 +83,7 @@ class Img:
 		return np.array(list(map(unnormalize_map, array)))
 
 
-	def croped_arr(self, xmin, xmax, ymin, ymax):
+	def croped_arr(self, xmin, ymin, xmax, ymax):
 		return self.arr2d[ymin:ymax, xmin:xmax]
 
 	def padd(self, width, height, mode=static_mode):
@@ -109,7 +109,7 @@ class Img:
 		# Img.from_image(newer_img).show()
 
 	def rand_crop(self, height, width):
-		if width > self.shape[0] or height > self.shape[1]:
+		if width > self.shape[1] or height > self.shape[0]:
 			return self.padd(width, height)
 
 
@@ -130,7 +130,8 @@ class Img:
 		y = (rand_y, offset_y)
 
 
-		return self.croped_arr(min(x), max(x), min(y), max(y))
+		return self.croped_arr(min(x), min(y), max(x), max(y))
+
 
 
 
