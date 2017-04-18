@@ -59,10 +59,12 @@ def testHash():
 	print('set:', len(set(n)))
 range_map = lambda input_start, input_end, output_start, output_end: lambda input: output_start + ((output_end - output_start) / (
 input_end - input_start)) * (input - input_start)
+
+
 def testBW():
 	img = next_batch(1, lambda x: 500)[0]
 	# img.show()
-	img.convert('L')
+	img.convert('RGB')
 	# i.show()
 	# i =  img.convert('L')
 	# w = list(np.asarray(i))
@@ -74,11 +76,14 @@ def testBW():
 	# p = chain.from_iterable(pix)
 	# print(list(p))
 	# print(pix)
-	l = img.arr2d[0:20]
-	print(list(l))
+	# print(img.shape)
+	l = img.arr2d[0:20, 0:20]
+	#
+	# print(list(l))
+	# l = get_2d_list_slice(img.arr2d, 0, 10, 0, 10)
 
 
-	img2 = Image.fromarray(m, 'RGB')
+	img2 = Image.fromarray(l, 'RGB')
 
 
 	img2.show()
