@@ -11,6 +11,9 @@ class Img:
 		self.__update(image)
 
 	def __update(self, image: PIL.Image):
+		if type(image) is Img:
+			raise Exception('Plis dude plis... ')
+
 		self.image = image
 		self.full_image = self.image
 		self.arr2d = np.array(self.image)
@@ -24,10 +27,10 @@ class Img:
 
 	@classmethod
 	def from_array1d(cls, array1d: np.ndarray, shape: list, mode='RGB'):
-		return cls.from_array2d(np.asarray(array1d).reshape(shape))
+		return cls.from_array2d(np.asarray(array1d).reshape(shape), mode)
 
 	@classmethod
-	def from_image(cls, image:Image):
+	def from_image(cls, image:PIL.Image):
 		return cls(image)
 
 	@classmethod
