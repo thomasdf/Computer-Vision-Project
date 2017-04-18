@@ -50,3 +50,6 @@ fabric.properties
 
 datasets.rar
 \.idea/
+
+*.pyc
+*.pyo
