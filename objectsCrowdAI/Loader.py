@@ -79,9 +79,6 @@ def next_batch(num, set_indexes):
 		imagearray = image.arr2d #convert to 1Darray
 
 		arr1d = image.arr1d
-		print(list(arr1d))
-		normalize_map = range_map(0, 255, 0, 1)
-		unnormalize_map = lambda x: int(round(range_map(0, 1, 0, 255)(x)))
 
 
 		arr = image.normalized()
@@ -89,7 +86,7 @@ def next_batch(num, set_indexes):
 
 
 		Img.from_array1d(arr_back, image.shape, 'L').show()
-		Img.from_array1d(arr1d   , image.shape, 'L').show()
+		Img.from_array1d(arr, image.shape, 'L').show()
 
 		# print(len(arrNorm))
 
