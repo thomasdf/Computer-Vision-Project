@@ -39,9 +39,7 @@ def next_batch(num, index_func = _index):
 		index = index_func(num_samples)
 		Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId = info[index]
 		print(Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId)
-		i = Image.open(path + Filename)
-		img = Img(i)
-		img.crop(*(int(c) for c in (Roi_X1, Roi_Y1, Roi_X2, Roi_Y2)))
+		img = Img.open(path + Filename).crop(*(int(c) for c in (Roi_X1, Roi_Y1, Roi_X2, Roi_Y2)))
 
 		images.append(img)
 	return images

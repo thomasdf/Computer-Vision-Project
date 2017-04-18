@@ -25,7 +25,7 @@ class Img:
 
 	@classmethod
 	def open(cls, path: str):
-		cls(Image.open(path))
+		return cls(Image.open(path))
 
 
 	def show(self):
