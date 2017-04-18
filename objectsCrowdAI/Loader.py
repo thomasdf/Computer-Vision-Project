@@ -4,6 +4,7 @@ import csv
 import random
 import PIL
 from PIL import Image
+from objectsCrowdAI.SplitSet import hashSplit
 
 base_dir = os.path.dirname(os.path.dirname( __file__ ))
 print(base_dir)
@@ -25,8 +26,12 @@ def loadCSV(csvpath: str):
             res.append(tuple)
     return res
 
-info = loadCSV(csvpath)
-num_samples = len(info)
+def defineSets(test_part: float, splitsetfunc = hashSplit()):
+    testindexes = splitsetfunc(test_part, num_samples)
+    trainindexes = range(0, num_samples).filter(lambda x: x not in testindexes)
+    return (testindexes, trainindexes)
+
+
 
 def rowToTuple(row):
     xmin = row[0]
@@ -55,14 +60,22 @@ def intToLabel(int):
     if(int == 2):
         return "Truck"
 
-def next_batch(num):
+def next_batch_test(num):
+    return next_batch(num, test_indexes)
+
+def next_batch_train(num):
+    return next_batch(num, train_indexes)
+
+def next_batch(num, set):
+    batch = []
     for _ in range(num):
-        index = random.randrange(0, num_samples-1)
+        index = set[random.randrange(0, len(set))] #get random index in set
         xmin, ymin, xmax, ymax, filename, label, url = info[index]
         print(xmin, ymin, xmax, ymax, filename, label, url)
         image = loadImage(filename)
         image = cropImage(image, xmin, ymin, xmax, ymax)
-        image.show()
+        batch.append(image)
+    return batch
 
 
 def cropImage(image, xmin, ymin, xmax, ymax):
@@ -80,5 +93,6 @@ def loadImage(name):
     img = Image.open(imagefolder + name)
     return img
 
-
-# next_batch(1)
+info = loadCSV(csvpath)
+num_samples = len(info)
+test_indexes, train_indexes = defineSets(0.1)
