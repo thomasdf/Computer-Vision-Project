@@ -46,18 +46,12 @@ def intToLabel(int):
 		return "Truck"
 
 def next_batch_test(num):
-	batch = next_batch(num, test_indexes) #test_indexes: array of all test-indexes
+	batch = next_batch(num, test    _indexes) #test_indexes: array of all test-indexes
 	return batch
 
 def next_batch_train(num):
 	batch = next_batch(num, train_indexes) #train_indexes: array of all train-indexes
 	return batch
-
-
-range_map = lambda input_start, input_end, output_start, output_end: lambda input: output_start + ((
-                                                                                                   output_end - output_start) / (
-	                                                                                                   input_end - input_start)) * (
-                                                                                                  input - input_start)
 
 
 def next_batch(num, set_indexes):
