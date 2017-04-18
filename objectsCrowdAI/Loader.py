@@ -26,9 +26,9 @@ def loadCSV(csvpath: str):
             res.append(tuple)
     return res
 
-def defineSets(test_part: float, splitsetfunc = hashSplit()):
+def defineSets(test_part: float, splitsetfunc = hashSplit):
     testindexes = splitsetfunc(test_part, num_samples)
-    trainindexes = range(0, num_samples).filter(lambda x: x not in testindexes)
+    trainindexes = filter(lambda x: x not in testindexes, range(num_samples))
     return (testindexes, trainindexes)
 
 

@@ -10,7 +10,7 @@ from objectsCrowdAI.Loader import base_dir, loadCSV
 from objectsCrowdAI.SplitSet import hashSplit
 
 path = base_dir + '/datasets/traffic-signs/GTSRB/Final_Training/Images/'
-save_path = base_dir + '/objectsCrowdAI/csv/'
+save_path = base_dir + '/signs/csv/'
 
 def saveCSV(filename, entries):
 	with open(save_path + filename, 'w') as file:
