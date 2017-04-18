@@ -14,9 +14,8 @@ vatsyayana_bio = '''Mallanaga Vatsyayana was a very holy man (sadhu), a seer, an
 scripture = (vatsyayana_bio, al_fathia_arabic, al_fathia_english)
 
 def hashSplit(test_part: float, set_size: int, hash = _hash):
-	if test_part < 0.0 or test_part > 1.0:
+	if 0.0 < test_part < 1.0:
 		raise Exception('Dafaq m8?')
-
 
 	result = []
 	test_size = int(set_size * test_part)

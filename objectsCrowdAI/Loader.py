@@ -46,7 +46,7 @@ def intToLabel(int):
 		return "Truck"
 
 def next_batch_test(num):
-	batch = next_batch(num, test    _indexes) #test_indexes: array of all test-indexes
+	batch = next_batch(num, test_indexes) #test_indexes: array of all test-indexes
 	return batch
 
 def next_batch_train(num):
@@ -75,9 +75,15 @@ def next_batch(num, set_indexes):
 		arr = image.normalized()
 		arr_back = Img.denormalized(arr)
 
+		# arrCroped = image.croped_arr(0, 100, 0, 100)
+		# print(arrCroped)
+		# print(type(arrCroped))
 
-		Img.from_array1d(arr_back, image.shape, 'L').show()
-		Img.from_array1d(arr1d, image.shape, 'L').show()
+		# print(image.shape)
+		image.show()
+		for _ in range(1):
+			allah = image.rand_crop(1200, 1000)
+			Img.from_array2d(allah, 'L').show()
 
 		# print(len(arrNorm))
 

@@ -1,6 +1,7 @@
 import csv
 import random
 
+import numpy as np
 from PIL import Image
 
 from image.Image import Img
@@ -83,35 +84,36 @@ def testBW():
 
 
 	img2 = Image.fromarray(l, 'RGB')
-
-
 	img2.show()
 
-	# xmin = img.shape[0] // 3
-	# xmax = img.shape[0] // 3 * 2
-	# ymin = img.shape[1] // 3
-	# ymax = img.shape[1] // 3 * 2
+
+	xcenter = img.shape[0] // 2
+	ycenter = img.shape[1] // 2
+
+	xmin = xcenter - 7
+	xmax = xcenter + 7
+	ymin = ycenter - 7
+	ymax = ycenter + 7
 	#
-	# xcenter = img.shape[0] // 2
-	# ycenter = img.shape[1] // 2
 	# ymap = range_map(0, img.shape[0], 128, -127)
-	# xmap = range_map(0, img.shape[1], 128, -127)
-	# dmap = range_map(0, np.math.sqrt(img.shape[0]**2 + img.shape[1]**2), 128, -127)
+	xmap = range_map(0, img.shape[1], 128, -127)
+	dmap = range_map(0, np.math.sqrt(img.shape[0]**2 + img.shape[1]**2), 128, -127)
+	dimap = lambda x, y: dmap(np.math.sqrt(x ** 2 + y ** 2))
 	#
-	# for y, y_arr in enumerate(img.arr2d):
-	# 	for x, _ in enumerate(y_arr):
-	# 		rgb = img.arr2d[y][x]
-	# 		offset = (dmap(np.math.sqrt(x ** 2 + y ** 2)), dmap(np.math.sqrt(x**2 + y**2)), 0)
-	# 		rgb_arr = []
-	# 		for i, n in enumerate(rgb):
-	# 			val = n + offset[i]
-	# 			if val < 0:
-	# 				val = 0
-	# 			elif val > 255:
-	# 				val = 255
-	# 			rgb_arr.append(val)
-	# 		img.arr2d[y][x] = rgb_arr
-	#
+	for y, y_arr in enumerate(img.arr2d):
+		for x, _ in enumerate(y_arr):
+			rgb = img.arr2d[y][x]
+			offset = (dmap(np.math.sqrt(x ** 2 + y ** 2)), dmap(np.math.sqrt(x**2 + y**2)), 0)
+			rgb_arr = []
+			for i, n in enumerate(rgb):
+				val = n + offset[i]
+				if val < 0:
+					val = 0
+				elif val > 255:
+					val = 255
+				rgb_arr.append(val)
+			img.arr2d[y][x] = rgb_arr
+
 	#
 	# 		if (abs(np.math.sqrt((x - xcenter)**2 + (y - ycenter)**2)- xmin) < 1):
 	# 				img.arr2d[y][x] = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
@@ -120,10 +122,10 @@ def testBW():
 	# 			rgb = img.arr2d[y][x]
 	# 			offset = (100, -10, 10)
 	# 			img.arr2d[y][x] = [n + offset[i] for i, n in enumerate(rgb)]
-	# 		if (x == xmin or x == xmax)and (y > ymin and y < ymax):
-	# 			img.arr2d[y][x] = [0, 0, 100]
-	# 		if (y == ymin or y == ymax) and (x > xmin and x < xmax):
-	# 			img.arr2d[y][x] = [0, 0, 100]
+			if (x == xmin or x == xmax)and (ymin < y < ymax):
+				img.arr2d[y][x] = [dimap(x, y), 0, 0]
+			if (y == ymin or y == ymax) and (xmin < x < xmax):
+				img.arr2d[y][x] = [dimap(x, y), 0, 0]
 	#
 
 
@@ -131,8 +133,8 @@ def testBW():
 	# vector =
 
 	# arr2 = np.asarray(img.arr1d).reshape(img.shape)
-	# img.update()
-	# img.image.show()
+	img.update()
+	img.image.show()
 				#
 
 	# img2 = Image.fromarray(img.arr2d, 'RGB')
