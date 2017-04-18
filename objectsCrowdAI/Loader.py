@@ -2,6 +2,8 @@ import csv
 import os
 import random
 
+import numpy as np
+
 from objectsCrowdAI.Image import Img
 from tools.SplitSet import hashSplit
 
@@ -54,25 +56,51 @@ def next_batch_train(num):
 	batch = next_batch(num, train_indexes) #train_indexes: array of all train-indexes
 	return batch
 
+
+range_map = lambda input_start, input_end, output_start, output_end: lambda input: output_start + ((
+                                                                                                   output_end - output_start) / (
+	                                                                                                   input_end - input_start)) * (
+                                                                                                  input - input_start)
+
+
 def next_batch(num, set_indexes):
 	batch = []
 	for _ in range(num):
-		index = set_indexes[random.randrange(0, len(set_indexes))] #get random index in set
+		# index = set_indexes[random.randrange(0, len(set_indexes))] #get random index in set
+		index = 200
 		xmin, ymin, xmax, ymax, filename, label, url = info[index]
 		print(xmin, ymin, xmax, ymax, filename, label, url)
 		image = Img.open(imagefolder + filename) #load image
-		image = image.crop(int(xmin), int(ymin), int(xmax), int(ymax)) #crop object
-		image = image.convert('L') #Convert to grayscale
-		image.show()
+		image.crop(int(xmin), int(ymin), int(xmax), int(ymax)) #crop object
+		image.convert('L') #Convert to grayscale
+		# image.show()
+
+
 		imagearray = image.arr2d #convert to 1Darray
+
+		arr1d = image.arr1d
+		print(list(arr1d))
+		normalize_map = range_map(0, 255, 0, 1)
+		unnormalize_map = lambda x: int(round(range_map(0, 1, 0, 255)(x)))
+
+
+		arr = image.normalized()
+		arr_back = Img.denormalized(arr)
+
+
+		Img.from_array1d(arr_back, image.shape, 'L').show()
+		Img.from_array1d(arr1d   , image.shape, 'L').show()
+
+		# print(len(arrNorm))
+
 		batch.append(imagearray)
 	return batch
 
 info = loadCSV(csvpath)
-num_samples = len(info)
-test_indexes, train_indexes = defineSets(0.1)
+# num_samples = len(info)
+# test_indexes, train_indexes = defineSets(0.1)
 
-n = next_batch(2, test_indexes)
+n = next_batch(1, lambda x: 200)
 
-for m in n:
-	Img.from_array2d(m, 'L').show()
+# for m in n:
+# 	Img.from_array2d(m, 'L').show()

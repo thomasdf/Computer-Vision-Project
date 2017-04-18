@@ -2,6 +2,12 @@ import PIL
 import numpy as np
 from PIL import Image
 
+range_map = lambda input_start, input_end, output_start, output_end: \
+	lambda input: output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start)
+
+normalize_map = range_map(0, 255, 0, 1)
+unnormalize_map = lambda x: int(round(range_map(0, 1, 0, 255)(x)))
+
 
 class Img:
 
@@ -26,8 +32,8 @@ class Img:
 		return cls(Image.fromarray(array2d, mode))
 
 	@classmethod
-	def from_array1d(cls, array1d: np.ndarray, shape: list, mode='RGB'):
-		return cls.from_array2d(np.asarray(array1d).reshape(shape), mode)
+	def from_array1d(cls, array1d: np.ndarray, shape: [], mode='RGB', dtype=np.uint8):
+		return cls.from_array2d(np.asarray(array1d, dtype=dtype).reshape(shape), mode)
 
 	@classmethod
 	def from_image(cls, image:PIL.Image):
@@ -52,3 +58,18 @@ class Img:
 
 	def convert(self, mode):
 		return self.__update(self.image.convert(mode))
+
+	def normalized(self):
+		return np.array(list(map(normalize_map, self.arr1d)))
+
+	def normalize(self):
+		arr = np.array(list(map(normalize_map, self.arr1d)))
+		self.from_array1d(arr, self.shape, mode='L')
+
+	def denormalize(self):
+		arr = np.array(list(map(unnormalize_map, self.arr1d)))
+		self.from_array1d(arr, self.shape, mode='L')
+
+	@classmethod
+	def denormalized(cls, array: np.array):
+		return np.array(list(map(unnormalize_map, array)))
