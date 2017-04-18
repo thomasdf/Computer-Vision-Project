@@ -50,3 +50,7 @@ fabric.properties
 
 datasets.rar
 \.idea/
+
+objectsCrowdAI/__pycache__/
+
+tools/__pycache__/

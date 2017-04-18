@@ -1,3 +1,4 @@
+import PIL
 import numpy as np
 from PIL import Image
 
@@ -6,10 +7,10 @@ class Img:
 
 
 
-	def __init__(self, image:Image):
+	def __init__(self, image:PIL.Image):
 		self.__update(image)
 
-	def __update(self, image: Image):
+	def __update(self, image: PIL.Image):
 		self.image = image
 		self.full_image = self.image
 		self.arr2d = np.array(self.image)
