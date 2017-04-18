@@ -27,7 +27,7 @@ def loadCSV(csvpath: str):
 
 def defineSets(test_part: float, splitsetfunc = hashSplit):
 	testindexes = splitsetfunc(test_part, num_samples)
-	trainindexes = filter(lambda x: x not in testindexes, range(num_samples))
+	trainindexes = list(filter(lambda x: x not in testindexes, range(num_samples)))
 	return (testindexes, trainindexes)
 
 def labelToInt(label):
@@ -60,11 +60,11 @@ def next_batch(num, set_indexes):
 		index = set_indexes[random.randrange(0, len(set_indexes))] #get random index in set
 		xmin, ymin, xmax, ymax, filename, label, url = [int(n) if i < 4 else n for i, n in enumerate(info[index])]
 		print(xmin, ymin, xmax, ymax, filename, label, url)
-		image = Img.from_image(Img.open(imagefolder + filename)) #load image
+		image = Img.open(imagefolder + filename) #load image
 		image = image.crop(int(xmin), int(ymin), int(xmax), int(ymax)) #crop object
 		image = image.convert('L') #Convert to grayscale
 		image.show()
-		imagearray = Img.arr1d #convert to 1Darray
+		imagearray = image.arr2d #convert to 1Darray
 		batch.append(imagearray)
 	return batch
 
@@ -72,4 +72,7 @@ info = loadCSV(csvpath)
 num_samples = len(info)
 test_indexes, train_indexes = defineSets(0.1)
 
-next_batch(2, test_indexes)
+n = next_batch(2, test_indexes)
+
+for m in n:
+	Img.from_array2d(m).show()

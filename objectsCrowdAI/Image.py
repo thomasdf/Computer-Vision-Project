@@ -1,3 +1,4 @@
+import PIL
 import numpy as np
 from PIL import Image
 
@@ -6,10 +7,10 @@ class Img:
 
 
 
-	def __init__(self, image:Image):
+	def __init__(self, image:PIL.Image):
 		self.__update(image)
 
-	def __update(self, image: Image):
+	def __update(self, image: PIL.Image):
 		self.image = image
 		self.full_image = self.image
 		self.arr2d = np.array(self.image)
@@ -38,7 +39,7 @@ class Img:
 		self.image.show()
 
 	def crop(self, xmin: int, ymin: int, xmax: int, ymax: int):
-		return self.__update(self.image.crop(*(xmin, ymin, xmax, ymax)))
+		return self.__update(self.image.crop((xmin, ymin, xmax, ymax)))
 
 	def update(self, mode='RGB'):
 		return self.__update(Image.fromarray(self.arr2d, mode))
