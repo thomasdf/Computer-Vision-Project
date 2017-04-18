@@ -28,7 +28,7 @@ def loadCSV(csvpath: str):
 
 def defineSets(test_part: float, splitsetfunc = hashSplit):
     testindexes = splitsetfunc(test_part, num_samples)
-    trainindexes = filter(lambda x: x not in testindexes, range(num_samples))
+    trainindexes = list(filter(lambda x: x not in testindexes, range(num_samples)))
     return (testindexes, trainindexes)
 
 
@@ -78,7 +78,7 @@ def next_batch(num, set):
     return batch
 
 
-def cropImage(image, xmin, ymin, xmax, ymax):
+def cropImage(image:Image, xmin, ymin, xmax, ymax):
     xmin, ymin, xmax, ymax = int(xmin), int(ymin), int(xmax), int(ymax)
     left = xmin
     top = ymin
