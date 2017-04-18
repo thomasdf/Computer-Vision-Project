@@ -9,9 +9,8 @@ normalize_map = range_map(0, 255, 0, 1)
 unnormalize_map = lambda x: int(round(range_map(0, 1, 0, 255)(x)))
 
 
+
 class Img:
-
-
 
 	def __init__(self, image:PIL.Image):
 		self.__update(image)
@@ -25,6 +24,7 @@ class Img:
 		self.arr2d = np.array(self.image)
 		self.shape = self.arr2d.shape
 		self.arr1d = self.arr2d.ravel()
+		self.label = np.zeros(46)
 		return self
 
 	@classmethod

@@ -1,6 +1,6 @@
 import csv
 import os
-
+import random
 from image.Image import Img
 from tools.SplitSet import hashSplit
 
@@ -10,6 +10,8 @@ csvpath = base_dir + '/datasets/object-detection-crowdai/labels.csv'
 print(csvpath)
 imagefolder = base_dir + '/datasets/object-detection-crowdai/'
 dialect = None
+
+labels = ["Pedestrian", "Car", "Truck"]
 
 def loadCSV(csvpath: str):
 	res = []
@@ -29,24 +31,14 @@ def defineSets(test_part: float, splitsetfunc = hashSplit):
 	trainindexes = list(filter(lambda x: x not in testindexes, range(num_samples)))
 	return (testindexes, trainindexes)
 
-def labelToInt(label):
-	if(label == "Pedestrian"):
-		return 0
-	if(label == "Car"):
-		return 1
-	if(label == "Truck"):
-		return 2
+def label_to_index(label):
+	label.index(label) + 43
 
-def intToLabel(int):
-	if(int == 0):
-		return "Pedestrian"
-	if(int == 1):
-		return "Car"
-	if(int == 2):
-		return "Truck"
+def index_to_label(int):
+	return labels[int - 43]
 
 def next_batch_test(num):
-	batch = next_batch(num, test    _indexes) #test_indexes: array of all test-indexes
+	batch = next_batch(num, test_indexes) #test_indexes: array of all test-indexes
 	return batch
 
 def next_batch_train(num):
@@ -57,13 +49,13 @@ def next_batch_train(num):
 def next_batch(num, set_indexes):
 	batch = []
 	for _ in range(num):
-		# index = set_indexes[random.randrange(0, len(set_indexes))] #get random index in set
-		index = 200
+		index = set_indexes[random.randrange(0, len(set_indexes))] #get random index in set
 		xmin, ymin, xmax, ymax, filename, label, url = info[index]
 		print(xmin, ymin, xmax, ymax, filename, label, url)
 		image = Img.open(imagefolder + filename) #load image
 		image.crop(int(xmin), int(ymin), int(xmax), int(ymax)) #crop object
 		image.convert('L') #Convert to grayscale
+		image.label[label_to_index(label)] = 1
 		# image.show()
 
 
@@ -85,8 +77,8 @@ def next_batch(num, set_indexes):
 	return batch
 
 info = loadCSV(csvpath)
-# num_samples = len(info)
-# test_indexes, train_indexes = defineSets(0.1)
+num_samples = len(info)
+test_indexes, train_indexes = defineSets(0.1)
 
 n = next_batch(1, lambda x: 200)
 
