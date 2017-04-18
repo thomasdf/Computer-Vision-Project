@@ -1,10 +1,9 @@
 import csv
 import random
 
-import numpy as np
 from PIL import Image
 
-from objectsCrowdAI.Image import Img
+from image.Image import Img
 from objectsCrowdAI.Loader import base_dir, loadCSV
 from tools.SplitSet import hashSplit
 

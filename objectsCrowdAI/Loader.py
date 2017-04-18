@@ -1,10 +1,7 @@
 import csv
 import os
-import random
 
-import numpy as np
-
-from objectsCrowdAI.Image import Img
+from image.Image import Img
 from tools.SplitSet import hashSplit
 
 base_dir = os.path.dirname(os.path.dirname( __file__ ))
@@ -86,7 +83,7 @@ def next_batch(num, set_indexes):
 
 
 		Img.from_array1d(arr_back, image.shape, 'L').show()
-		Img.from_array1d(arr, image.shape, 'L').show()
+		Img.from_array1d(arr1d, image.shape, 'L').show()
 
 		# print(len(arrNorm))
 

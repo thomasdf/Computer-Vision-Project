@@ -40,7 +40,7 @@ class Img:
 		return cls(image)
 
 	@classmethod
-	def open(cls, path: str):
+	def open(cls, path: str, mode='L'):
 		return cls(Image.open(path))
 
 
