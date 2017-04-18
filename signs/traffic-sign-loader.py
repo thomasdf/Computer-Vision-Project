@@ -1,13 +1,11 @@
 import csv
 import random
-from itertools import chain
 
-import numpy
 import numpy as np
 from PIL import Image
 
 from objectsCrowdAI.Loader import base_dir, loadCSV
-from objectsCrowdAI.SplitSet import hashSplit
+from tools.SplitSet import hashSplit
 
 path = base_dir + '/datasets/traffic-signs/GTSRB/Final_Training/Images/'
 save_path = base_dir + '/signs/csv/'

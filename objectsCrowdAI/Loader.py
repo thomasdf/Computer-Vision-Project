@@ -1,10 +1,10 @@
-import os
-import sys
 import csv
+import os
 import random
-import PIL
+
 from PIL import Image
-from objectsCrowdAI.SplitSet import hashSplit
+
+from tools.SplitSet import hashSplit
 
 base_dir = os.path.dirname(os.path.dirname( __file__ ))
 print(base_dir)
