@@ -54,3 +54,6 @@ datasets.rar
 objectsCrowdAI/__pycache__/
 
 tools/__pycache__/
+
+*.pyc
+*.pyo
