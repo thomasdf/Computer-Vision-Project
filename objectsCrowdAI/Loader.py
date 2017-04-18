@@ -58,7 +58,7 @@ def next_batch(num, set_indexes):
 	batch = []
 	for _ in range(num):
 		index = set_indexes[random.randrange(0, len(set_indexes))] #get random index in set
-		xmin, ymin, xmax, ymax, filename, label, url = [int(n) if i < 4 else n for i, n in enumerate(info[index])]
+		xmin, ymin, xmax, ymax, filename, label, url = info[index]
 		print(xmin, ymin, xmax, ymax, filename, label, url)
 		image = Img.open(imagefolder + filename) #load image
 		image = image.crop(int(xmin), int(ymin), int(xmax), int(ymax)) #crop object
@@ -75,4 +75,4 @@ test_indexes, train_indexes = defineSets(0.1)
 n = next_batch(2, test_indexes)
 
 for m in n:
-	Img.from_array2d(m).show()
+	Img.from_array2d(m, 'L').show()
