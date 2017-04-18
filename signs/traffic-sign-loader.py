@@ -4,6 +4,7 @@ import random
 import numpy as np
 from PIL import Image
 
+from objectsCrowdAI.Image import Img
 from objectsCrowdAI.Loader import base_dir, loadCSV
 from tools.SplitSet import hashSplit
 
@@ -38,8 +39,9 @@ def next_batch(num, index_func = _index):
 		index = index_func(num_samples)
 		Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId = info[index]
 		print(Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId)
-		image = Image.open(path + Filename).crop((int(c) for c in (Roi_X1, Roi_Y1, Roi_X2, Roi_Y2)))
-		images.append(image)
+		img = Img(path + Filename).crop(*(int(c) for c in (Roi_X1, Roi_Y1, Roi_X2, Roi_Y2)))
+
+		images.append(img)
 	return images
 
 
@@ -61,9 +63,11 @@ def testBW():
 	img = next_batch(1, lambda x: 500)[0]
 	# img.show()
 	i =  img.convert('L')
-	w = list(np.asarray(i))
+	i.show()
+	# i =  img.convert('L')
+	# w = list(np.asarray(i))
 	# print(w)
-	q = list(i.getdata())
+	# q = list(i.getdata())
 	# im = Image.fromarray(q)
 	# im.show()
 	# pix = numpy.array(i)
@@ -71,25 +75,23 @@ def testBW():
 	# print(list(p))
 	# print(pix)
 
-	arr2d = np.array(img)
 
 
-	shape = arr2d.shape
 
-	xmin = shape[0] // 3
-	xmax = shape[0] // 3 * 2
-	ymin = shape[1] // 3
-	ymax = shape[1] // 3 * 2
+	xmin = img.shape[0] // 3
+	xmax = img.shape[0] // 3 * 2
+	ymin = img.shape[1] // 3
+	ymax = img.shape[1] // 3 * 2
 
-	xcenter = shape[0] // 2
-	ycenter = shape[1] // 2
-	ymap = range_map(0, shape[0], 128, -127)
-	xmap = range_map(0, shape[1], 128, -127)
-	dmap = range_map(0, np.math.sqrt(shape[0]**2 + shape[1]**2), 128, -127)
+	xcenter = img.shape[0] // 2
+	ycenter = img.shape[1] // 2
+	ymap = range_map(0, img.shape[0], 128, -127)
+	xmap = range_map(0, img.shape[1], 128, -127)
+	dmap = range_map(0, np.math.sqrt(img.shape[0]**2 + img.shape[1]**2), 128, -127)
 
-	for y, y_arr in enumerate(arr2d):
+	for y, y_arr in enumerate(img.arr2d):
 		for x, _ in enumerate(y_arr):
-			rgb = arr2d[y][x]
+			rgb = img.arr2d[y][x]
 			offset = (dmap(np.math.sqrt(x ** 2 + y ** 2)), dmap(np.math.sqrt(x**2 + y**2)), 0)
 			rgb_arr = []
 			for i, n in enumerate(rgb):
@@ -99,31 +101,33 @@ def testBW():
 				elif val > 255:
 					val = 255
 				rgb_arr.append(val)
-			arr2d[y][x] = rgb_arr
+			img.arr2d[y][x] = rgb_arr
 
 
-		# if (abs(np.math.sqrt((x - xcenter)**2 + (y - ycenter)**2)- xmin) < 1):
-			# 	arr2d[y][x] = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
-			#
-			# if x > xmin and x < xmax and y > ymin and y < ymax:
-			# 	rgb = arr2d[y][x]
-			# 	offset = (100, -10, 10)
-			# 	arr2d[y][x] = [n + offset[i] for i, n in enumerate(rgb)]
-			# if (x == xmin or x == xmax)and (y > ymin and y < ymax):
-			# 	arr2d[y][x] = [0, 0, 100]
-			# if (y == ymin or y == ymax) and (x > xmin and x < xmax):
-			# 	arr2d[y][x] = [0, 0, 100]
+			if (abs(np.math.sqrt((x - xcenter)**2 + (y - ycenter)**2)- xmin) < 1):
+					img.arr2d[y][x] = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
+
+			if x > xmin and x < xmax and y > ymin and y < ymax:
+				rgb = img.arr2d[y][x]
+				offset = (100, -10, 10)
+				img.arr2d[y][x] = [n + offset[i] for i, n in enumerate(rgb)]
+			if (x == xmin or x == xmax)and (y > ymin and y < ymax):
+				img.arr2d[y][x] = [0, 0, 100]
+			if (y == ymin or y == ymax) and (x > xmin and x < xmax):
+				img.arr2d[y][x] = [0, 0, 100]
 
 
 
-	arr1d = arr2d.ravel()
 
 	# vector =
 
-	arr2 = np.asarray(arr1d).reshape(shape)
+	# arr2 = np.asarray(img.arr1d).reshape(img.shape)
+	# img.update()
+	# img.image.show()
+				#
 
-	img2 = Image.fromarray(arr2, 'RGB')
-	img2.show()
+	# img2 = Image.fromarray(img.arr2d, 'RGB')
+	# img2.show()
 	# print(vector)
 
 def testStuff():
