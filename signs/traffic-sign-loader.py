@@ -39,7 +39,9 @@ def next_batch(num, index_func = _index):
 		index = index_func(num_samples)
 		Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId = info[index]
 		print(Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId)
-		img = Img(path + Filename).crop(*(int(c) for c in (Roi_X1, Roi_Y1, Roi_X2, Roi_Y2)))
+		i = Image.open(path + Filename)
+		img = Img(i)
+		img.crop(*(int(c) for c in (Roi_X1, Roi_Y1, Roi_X2, Roi_Y2)))
 
 		images.append(img)
 	return images
@@ -62,8 +64,8 @@ input_end - input_start)) * (input - input_start)
 def testBW():
 	img = next_batch(1, lambda x: 500)[0]
 	# img.show()
-	i =  img.convert('L')
-	i.show()
+	# i =  img.convert('L')
+	# i.show()
 	# i =  img.convert('L')
 	# w = list(np.asarray(i))
 	# print(w)
@@ -74,48 +76,53 @@ def testBW():
 	# p = chain.from_iterable(pix)
 	# print(list(p))
 	# print(pix)
+	l = img.arr2d[0:20]
+	print(l)
+	m = l[0:2]
+
+	img2 = Image.fromarray(m, 'RGB')
 
 
+	img2.show()
 
-
-	xmin = img.shape[0] // 3
-	xmax = img.shape[0] // 3 * 2
-	ymin = img.shape[1] // 3
-	ymax = img.shape[1] // 3 * 2
-
-	xcenter = img.shape[0] // 2
-	ycenter = img.shape[1] // 2
-	ymap = range_map(0, img.shape[0], 128, -127)
-	xmap = range_map(0, img.shape[1], 128, -127)
-	dmap = range_map(0, np.math.sqrt(img.shape[0]**2 + img.shape[1]**2), 128, -127)
-
-	for y, y_arr in enumerate(img.arr2d):
-		for x, _ in enumerate(y_arr):
-			rgb = img.arr2d[y][x]
-			offset = (dmap(np.math.sqrt(x ** 2 + y ** 2)), dmap(np.math.sqrt(x**2 + y**2)), 0)
-			rgb_arr = []
-			for i, n in enumerate(rgb):
-				val = n + offset[i]
-				if val < 0:
-					val = 0
-				elif val > 255:
-					val = 255
-				rgb_arr.append(val)
-			img.arr2d[y][x] = rgb_arr
-
-
-			if (abs(np.math.sqrt((x - xcenter)**2 + (y - ycenter)**2)- xmin) < 1):
-					img.arr2d[y][x] = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
-
-			if x > xmin and x < xmax and y > ymin and y < ymax:
-				rgb = img.arr2d[y][x]
-				offset = (100, -10, 10)
-				img.arr2d[y][x] = [n + offset[i] for i, n in enumerate(rgb)]
-			if (x == xmin or x == xmax)and (y > ymin and y < ymax):
-				img.arr2d[y][x] = [0, 0, 100]
-			if (y == ymin or y == ymax) and (x > xmin and x < xmax):
-				img.arr2d[y][x] = [0, 0, 100]
-
+	# xmin = img.shape[0] // 3
+	# xmax = img.shape[0] // 3 * 2
+	# ymin = img.shape[1] // 3
+	# ymax = img.shape[1] // 3 * 2
+	#
+	# xcenter = img.shape[0] // 2
+	# ycenter = img.shape[1] // 2
+	# ymap = range_map(0, img.shape[0], 128, -127)
+	# xmap = range_map(0, img.shape[1], 128, -127)
+	# dmap = range_map(0, np.math.sqrt(img.shape[0]**2 + img.shape[1]**2), 128, -127)
+	#
+	# for y, y_arr in enumerate(img.arr2d):
+	# 	for x, _ in enumerate(y_arr):
+	# 		rgb = img.arr2d[y][x]
+	# 		offset = (dmap(np.math.sqrt(x ** 2 + y ** 2)), dmap(np.math.sqrt(x**2 + y**2)), 0)
+	# 		rgb_arr = []
+	# 		for i, n in enumerate(rgb):
+	# 			val = n + offset[i]
+	# 			if val < 0:
+	# 				val = 0
+	# 			elif val > 255:
+	# 				val = 255
+	# 			rgb_arr.append(val)
+	# 		img.arr2d[y][x] = rgb_arr
+	#
+	#
+	# 		if (abs(np.math.sqrt((x - xcenter)**2 + (y - ycenter)**2)- xmin) < 1):
+	# 				img.arr2d[y][x] = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
+	#
+	# 		if x > xmin and x < xmax and y > ymin and y < ymax:
+	# 			rgb = img.arr2d[y][x]
+	# 			offset = (100, -10, 10)
+	# 			img.arr2d[y][x] = [n + offset[i] for i, n in enumerate(rgb)]
+	# 		if (x == xmin or x == xmax)and (y > ymin and y < ymax):
+	# 			img.arr2d[y][x] = [0, 0, 100]
+	# 		if (y == ymin or y == ymax) and (x > xmin and x < xmax):
+	# 			img.arr2d[y][x] = [0, 0, 100]
+	#
 
 
 

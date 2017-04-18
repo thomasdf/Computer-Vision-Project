@@ -13,15 +13,15 @@ class Img:
 
 	@classmethod
 	def from_array2d(cls, array2d: np.array, mode='RGB'):
-		cls(Image.fromarray(array2d, mode))
+		return cls(Image.fromarray(array2d, mode))
 
 	@classmethod
 	def from_array1d(cls, array1d: np.ndarray, shape: list, mode='RGB'):
-		cls.from_array2d(np.asarray(array1d).reshape(shape))
+		return cls.from_array2d(np.asarray(array1d).reshape(shape))
 
 	@classmethod
 	def from_image(cls, image:Image):
-		cls(image)
+		return cls(image)
 
 	@classmethod
 	def open(cls, path: str):
