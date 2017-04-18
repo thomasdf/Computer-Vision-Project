@@ -62,7 +62,7 @@ input_end - input_start)) * (input - input_start)
 def testBW():
 	img = next_batch(1, lambda x: 500)[0]
 	# img.show()
-	# i =  img.convert('L')
+	img.convert('L')
 	# i.show()
 	# i =  img.convert('L')
 	# w = list(np.asarray(i))
@@ -75,8 +75,8 @@ def testBW():
 	# print(list(p))
 	# print(pix)
 	l = img.arr2d[0:20]
-	print(l)
-	m = l[0:2]
+	print(list(l))
+
 
 	img2 = Image.fromarray(m, 'RGB')
 

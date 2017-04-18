@@ -4,12 +4,18 @@ from PIL import Image
 
 class Img:
 
+
+
 	def __init__(self, image:Image):
+		self.__update(image)
+
+	def __update(self, image: Image):
 		self.image = image
 		self.full_image = self.image
 		self.arr2d = np.array(self.image)
 		self.shape = self.arr2d.shape
 		self.arr1d = self.arr2d.ravel()
+		return self
 
 	@classmethod
 	def from_array2d(cls, array2d: np.array, mode='RGB'):
@@ -32,11 +38,13 @@ class Img:
 		self.image.show()
 
 	def crop(self, xmin: int, ymin: int, xmax: int, ymax: int):
-		self.image = self.image.crop((xmin, ymin, xmax, ymax))
-		return self
+		return self.__update(self.image.crop((xmin, ymin, xmax, ymax)))
 
 	def update(self, mode='RGB'):
-		self.image = Image.fromarray(self.arr2d, mode)
+		return self.__update(Image.fromarray(self.arr2d, mode))
+
+	def converted(self, mode):
+		return self.image.convert(mode)
 
 	def convert(self, mode):
-		return self.image.convert(mode)
+		return self.__update(self.image.convert(mode))
