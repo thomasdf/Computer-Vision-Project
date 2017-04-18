@@ -19,7 +19,7 @@ def loadCSV(csvpath: str):
 		dialect = csv.Sniffer().sniff(file.read(), delimiters=';,')
 		file.seek(0)
 		reader = csv.reader(file, dialect=dialect)
-		for row in reader:
+		for row in list(reader)[1:]:
 			tuple = []
 			for index in row:
 				tuple.append(index)
@@ -86,7 +86,7 @@ info = loadCSV(csvpath)
 num_samples = len(info)
 test_indexes, train_indexes = defineSets(0.1)
 
-n = next_batch(1, lambda x: 200)
+n = next_batch(1, test_indexes)
 
 # for m in n:
 # 	Img.from_array2d(m, 'L').show()

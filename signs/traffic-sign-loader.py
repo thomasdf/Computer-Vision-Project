@@ -24,7 +24,7 @@ def concatCSVS():
 	for i in range(43):
 		p = csv_format.format(i)
 		small_path_i = small_path.format(i)
-		csv_i = loadCSV(p)[1:]
+		csv_i = loadCSV(p)
 
 		csv += ([[small_path_i + cell if j is 0 else cell for j,cell in enumerate(line)] for line in csv_i])
 
