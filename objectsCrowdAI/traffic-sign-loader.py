@@ -44,6 +44,7 @@ def next_batch(num, index_func = _index):
 		images.append(image)
 	return images
 
+
 def testHash():
 	info = loadCSV(save_path + 'signs.csv')
 	n = hashSplit(0.01, len(info))
@@ -61,7 +62,7 @@ input_end - input_start)) * (input - input_start)
 def testBW():
 	img = next_batch(1, lambda x: 500)[0]
 	# img.show()
-	i =  img.convert('RGB')
+	i =  img.convert('L')
 	w = list(np.asarray(i))
 	# print(w)
 	q = list(i.getdata())
@@ -72,7 +73,7 @@ def testBW():
 	# print(list(p))
 	# print(pix)
 
-	arr2d = np.array(i)
+	arr2d = np.array(img)
 
 
 	shape = arr2d.shape
@@ -84,13 +85,14 @@ def testBW():
 
 	xcenter = shape[0] // 2
 	ycenter = shape[1] // 2
-	xmap = range_map(0, shape[0], 0, 40)
-	ymap = range_map(0, shape[1], 128, -127)
+	ymap = range_map(0, shape[0], 128, -127)
+	xmap = range_map(0, shape[1], 128, -127)
+	dmap = range_map(0, np.math.sqrt(shape[0]**2 + shape[1]**2), 128, -127)
 
 	for y, y_arr in enumerate(arr2d):
 		for x, _ in enumerate(y_arr):
 			rgb = arr2d[y][x]
-			offset = (ymap(x), 0, 0)
+			offset = (dmap(np.math.sqrt(x ** 2 + y ** 2)), dmap(np.math.sqrt(x**2 + y**2)), 0)
 			rgb_arr = []
 			for i, n in enumerate(rgb):
 				val = n + offset[i]
@@ -117,15 +119,20 @@ def testBW():
 
 
 	arr1d = arr2d.ravel()
-	vector = np.matrix(arr1d)
 
 	# vector =
 
-	arr2 = np.asarray(vector).reshape(shape)
+	arr2 = np.asarray(arr1d).reshape(shape)
 
 	img2 = Image.fromarray(arr2, 'RGB')
 	img2.show()
 	# print(vector)
+
+def testStuff():
+	length = 1000
+	test_indexes = hashSplit(0.1, length)
+
+	train_i = filter(lambda a: a not in test_indexes, range(length))
 
 
 
