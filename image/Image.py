@@ -30,6 +30,7 @@ class Img:
 		self.arr2d = np.array(self.image)
 		self.shape = self.arr2d.shape
 		self.arr1d = self.arr2d.ravel()
+		self.label = np.zeros(46)
 		return self
 
 
