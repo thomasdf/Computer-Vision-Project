@@ -24,7 +24,7 @@ class Img:
 
 	@classmethod
 	def from_array1d(cls, array1d: np.ndarray, shape: list, mode='RGB'):
-		return cls.from_array2d(np.asarray(array1d).reshape(shape))
+		return cls.from_array2d(np.asarray(array1d).reshape(shape), mode)
 
 	@classmethod
 	def from_image(cls, image:Image):
