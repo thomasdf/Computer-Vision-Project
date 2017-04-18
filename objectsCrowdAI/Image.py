@@ -38,7 +38,7 @@ class Img:
 		self.image.show()
 
 	def crop(self, xmin: int, ymin: int, xmax: int, ymax: int):
-		return self.__update(self.image.crop((xmin, ymin, xmax, ymax)))
+		return self.__update(self.image.crop(*(xmin, ymin, xmax, ymax)))
 
 	def update(self, mode='RGB'):
 		return self.__update(Image.fromarray(self.arr2d, mode))
