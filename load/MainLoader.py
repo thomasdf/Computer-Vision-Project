@@ -46,17 +46,25 @@ class MainLoader:
 	def split_data(self, testrate: float, data_length: int):
 		from tools.SplitSet import hash_split
 		testindexes = hash_split(testrate, data_length)
+		path = base_dir + '/load/testindexes.txt'
+		with open(path, 'w') as file:
+			for i in testindexes:
+				file.write(str(i) + ',')
+
+
 		trainindexes = list(filter(lambda x: x not in testindexes, range(data_length)))
 		return testindexes, trainindexes
 
-	def test_chop(self, data: [], indexes: [int], size):
+	def test_choppers(self, indexes: [int] = None):
 		result = {}
+		if indexes == None:
+			indexes = self.trainindexes
 
-		seeds = hash_split(1, size, len(indexes))
+		seeds = hash_split(1, len(indexes))
 
 		for i, index in enumerate(indexes):
-			xmin, ymin, xmax, ymax, filepath, label = data[index]
-			result[index] = Img.to_test_crop(xmin, ymin, xmax, ymax, size, seeds[i])
+			xmin, ymin, xmax, ymax, filepath, label = self.data[index]
+			result[index] = Img.to_test_crop(int(xmin), int(ymin), int(xmax), int(ymax), self.size, seeds[i])
 
 
 
@@ -91,3 +99,7 @@ class MainLoader:
 			return self.__get_batch(num, self.data, self.testindexes)
 
 
+
+n = MainLoader(15, 0.1)
+
+print('hei')
