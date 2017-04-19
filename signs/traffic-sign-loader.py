@@ -5,8 +5,8 @@ import numpy as np
 from PIL import Image
 
 from image.Image import Img
-from objectsCrowdAI.Loader import base_dir, loadCSV
-from tools.SplitSet import hashSplit
+from objectsCrowdAI.Loader import base_dir, load_csv
+from tools.SplitSet import hash_split
 
 path = base_dir + '/datasets/traffic-signs/GTSRB/Final_Training/Images/'
 save_path = base_dir + '/signs/csv/'
@@ -25,7 +25,7 @@ def concatCSVS():
 	for i in range(43):
 		p = csv_format.format(i)
 		small_path_i = small_path.format(i)
-		csv_i = loadCSV(p)
+		csv_i = load_csv(p)
 
 		csv += ([[small_path_i + cell if j is 0 else cell for j,cell in enumerate(line)] for line in csv_i])
 
@@ -33,7 +33,7 @@ def concatCSVS():
 _index = lambda num: random.randrange(0, num - 1)
 
 def next_batch(num, index_func = _index):
-	info = loadCSV(save_path + 'signs.csv')
+	info = load_csv(save_path + 'signs.csv')
 	num_samples = len(info)
 	batch = []
 	labels = []
@@ -49,8 +49,8 @@ def next_batch(num, index_func = _index):
 
 
 def testHash():
-	info = loadCSV(save_path + 'signs.csv')
-	n = hashSplit(0.01, len(info))
+	info = load_csv(save_path + 'signs.csv')
+	n = hash_split(0.01, len(info))
 
 
 	for i, q in enumerate(n):
@@ -146,7 +146,7 @@ def testBW():
 
 def testStuff():
 	length = 1000
-	test_indexes = hashSplit(0.1, length)
+	test_indexes = hash_split(0.1, length)
 
 	train_i = filter(lambda a: a not in test_indexes, range(length))
 

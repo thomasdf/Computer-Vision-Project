@@ -2,7 +2,7 @@ import csv
 import os
 import random
 from image.Image import Img
-from tools.SplitSet import hashSplit
+from tools.SplitSet import hash_split
 
 base_dir = os.path.dirname(os.path.dirname( __file__ ))
 print(base_dir)
@@ -13,7 +13,7 @@ dialect = None
 other_labels = 1
 labels = ["Pedestrian", "Car", "Truck"]
 
-def loadCSV(csvpath: str):
+def load_csv(csvpath: str):
 	res = []
 	with open(csvpath) as file:
 		dialect = csv.Sniffer().sniff(file.read(), delimiters=';,')
@@ -26,7 +26,7 @@ def loadCSV(csvpath: str):
 			res.append(tuple)
 	return res
 
-def defineSets(test_part: float, splitsetfunc = hashSplit):
+def defineSets(test_part: float, splitsetfunc = hash_split):
 	testindexes = splitsetfunc(test_part, num_samples)
 	trainindexes = list(filter(lambda x: x not in testindexes, range(num_samples)))
 	return (testindexes, trainindexes)
@@ -85,7 +85,7 @@ def next_batch(num, set_indexes):
 
 	return batch, labels
 
-info = loadCSV(csvpath)
+info = load_csv(csvpath)
 num_samples = len(info)
 test_indexes, train_indexes = defineSets(0.1)
 

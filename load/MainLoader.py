@@ -19,16 +19,17 @@ labels = ['signs', 'Pedestrian', 'Car', 'Truck']
 
 class MainLoader:
 
-	def __init__(self, testrate:float = 0.1):
+	def __init__(self, size: int, testrate:float = 0.1):
 		self.data = self.load_images()
 		self.testindexes, self.trainindexes = self.split_data(testrate, len(self.data))
 		self.index_in_epoch = 0
+		self.size = size
 
 
 	def load_images(self):
-		from objectsCrowdAI.Loader import loadCSV
-		car_data = loadCSV(car_path)  # xmin, ymin, xmax, ymax, filename, label, url
-		sign_data = loadCSV(sign_path)  # Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId
+		from objectsCrowdAI.Loader import load_csv
+		car_data = load_csv(car_path)  # xmin, ymin, xmax, ymax, filename, label, url
+		sign_data = load_csv(sign_path)  # Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId
 
 		data = []
 
@@ -41,10 +42,15 @@ class MainLoader:
 		return data  # xmin, ymin, xmax, ymax, filepath, label
 
 	def split_data(self, testrate: float, data_length: int):
-		from tools.SplitSet import hashSplit
-		testindexes = hashSplit(testrate, data_length)
+		from tools.SplitSet import hash_split
+		testindexes = hash_split(testrate, data_length)
 		trainindexes = list(filter(lambda x: x not in testindexes, range(data_length)))
 		return testindexes, trainindexes
+
+	def test_chop(self, data: [], indexes: [int]):
+		pass
+
+
 
 	def __get_batch(self, num: int, data: [], indexes: [int]):
 		batch = np.zeros(num, dtype=np.ndarray)
