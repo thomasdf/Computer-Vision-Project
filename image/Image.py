@@ -31,7 +31,7 @@ class Img:
 		self.arr2d = np.array(self.image)
 		self.shape = self.arr2d.shape
 		self.arr1d = self.arr2d.ravel()
-		self.labels = np.zeros(4)
+		self.labels = np.zeros(4, dtype=float)
 		return self
 
 
