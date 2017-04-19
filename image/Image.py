@@ -121,6 +121,20 @@ class Img:
 
 		return np.array(new_img.crop((0, 0, height, width)))
 
+	def to_test_crop(self, xmin, ymin, xmax, ymax, size, seed):
+		height = xmax - xmin
+		width = ymax - ymin
+
+		num_imgs = (height-size)*(width-size)
+
+		pos1d = seed % num_imgs
+		x = pos1d % width
+		y = pos1d // width
+
+		return x, y, x + size, y + size
+
+
+
 
 	def rand_crop(self, height, width):
 		if width >= self.shape[1] or height >= self.shape[0]:

@@ -34,7 +34,7 @@ train_step = optimizer.minimize(cross_entropy)
 sess = tf.Session()
 sess.run(init)
 
-loader = MainLoader(0.1)
+loader = MainLoader(15, 0.1)
 epoch = 0
 for i in range(1000):
 	# load batch of images and correct answers

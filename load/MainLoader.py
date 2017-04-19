@@ -48,7 +48,14 @@ class MainLoader:
 		return testindexes, trainindexes
 
 	def test_chop(self, data: [], indexes: [int]):
-		pass
+		result = {}
+
+		for i, index in enumerate(indexes):
+			xmin, ymin, xmax, ymax, filepath, label = data[index]
+
+			pass
+
+
 
 
 
