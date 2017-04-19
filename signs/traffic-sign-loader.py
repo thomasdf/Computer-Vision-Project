@@ -34,15 +34,17 @@ _index = lambda num: random.randrange(0, num - 1)
 def next_batch(num, index_func = _index):
 	info = loadCSV(save_path + 'signs.csv')
 	num_samples = len(info)
-	images = []
+	batch = []
+	labels = []
 	for _ in range(num):
 		index = index_func(num_samples)
 		Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId = info[index]
 		print(Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId)
 		img = Img.open(path + Filename).crop(*(int(c) for c in (Roi_X1, Roi_Y1, Roi_X2, Roi_Y2)))
-
-		images.append(img)
-	return images
+		img.set_label(0)
+		batch.append(img.arr2d)
+		batch.append(img.one_hot)
+	return batch, labels
 
 
 def testHash():

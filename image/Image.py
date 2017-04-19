@@ -51,6 +51,14 @@ class Img:
 	def open(cls, path: str, mode=static_mode):
 		return cls(Image.open(path))
 
+	def set_label(self, labelID:int):
+		if labelID >= static_num_labels:
+			raise Exception('Nooooooo!')
+
+		self.label = labelID
+		self.one_hot = np.zeros(static_num_labels)
+		self.one_hot[labelID] = 1
+
 	def show(self):
 		self.image.show()
 
