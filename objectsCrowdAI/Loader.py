@@ -12,6 +12,7 @@ imagefolder = base_dir + '/datasets/object-detection-crowdai/'
 dialect = None
 
 labels = ["Pedestrian", "Car", "Truck"]
+labeloffset = 1
 
 def loadCSV(csvpath: str):
 	res = []
@@ -31,12 +32,6 @@ def defineSets(test_part: float, splitsetfunc = hashSplit):
 	trainindexes = list(filter(lambda x: x not in testindexes, range(num_samples)))
 	return (testindexes, trainindexes)
 
-def label_to_index(label):
-	label.index(label) + 43
-
-def index_to_label(int):
-	return labels[int - 43]
-
 def next_batch_test(num):
 	batch = next_batch(num, test_indexes) #test_indexes: array of all test-indexes
 	return batch
@@ -55,21 +50,14 @@ def next_batch(num, set_indexes):
 		image = Img.open(imagefolder + filename) #load image
 		image.crop(int(xmin), int(ymin), int(xmax), int(ymax)) #crop object
 		image.convert('L') #Convert to grayscale
-		image.label[label_to_index(label)] = 1
-		# image.show()
-
-
+		image.setLabel(labels.index(label) + labeloffset)
 		imagearray = image.arr2d #convert to 1Darray
-
 		arr1d = image.arr1d
-
-
 		arr = image.normalized()
-		arr_back = Img.denormalized(arr)
 
-		# arrCroped = image.croped_arr(0, 100, 0, 100)
-		# print(arrCroped)
-		# print(type(arrCroped))
+		arrCroped = image.croped_arr(0, 100, 0, 100)
+		print(arrCroped)
+		print(type(arrCroped))
 
 		# print(image.shape)
 		image.show()
