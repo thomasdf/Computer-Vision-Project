@@ -79,6 +79,8 @@ class Img:
 
 	def normalized(self):
 		return np.array(list(map(normalize_map, self.arr1d)))
+	def normalized2d(self):
+		return np.multiply(self.arr2d, 1.0 / 255.0)
 
 	def normalize(self):
 		self.from_array1d(self.normalized(), self.shape, mode='L')

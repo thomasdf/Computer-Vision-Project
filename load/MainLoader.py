@@ -56,7 +56,7 @@ class MainLoader:
 			image.crop(int(xmin), int(ymin), int(xmax), int(ymax))  # crop object
 			image.convert('L')  # Convert to grayscale
 			image.set_label(label)
-			batch[i] = image.arr2d
+			batch[i] = image.normalized2d()
 			labels[i] = image.one_hot
 		return batch, labels
 
