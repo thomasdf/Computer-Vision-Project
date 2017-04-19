@@ -11,6 +11,7 @@ from tools.SplitSet import hashSplit
 path = base_dir + '/datasets/traffic-signs/GTSRB/Final_Training/Images/'
 save_path = base_dir + '/signs/csv/'
 
+
 def saveCSV(filename, entries):
 	with open(save_path + filename, 'w') as file:
 		writer = csv.writer(file, lineterminator='\n')

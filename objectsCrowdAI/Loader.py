@@ -89,8 +89,8 @@ info = loadCSV(csvpath)
 num_samples = len(info)
 test_indexes, train_indexes = defineSets(0.1)
 
-n, q = next_batch(1, test_indexes)
-
-for im, l in zip(n, q):
-	print(l)
-	Img.from_array2d(im, 'L').show()
+# n, q = next_batch(1, test_indexes)
+#
+# for im, l in zip(n, q):
+# 	print(l)
+# 	Img.from_array2d(im, 'L').show()
