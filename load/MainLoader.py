@@ -1,8 +1,9 @@
 import os
 import random
 
+import numpy as np
+
 from image.Image import Img
-from tools.SplitSet import hashSplit
 
 
 # load_images()
@@ -18,9 +19,9 @@ labels = ['signs', 'Pedestrian', 'Car', 'Truck']
 
 class MainLoader:
 
-	def __init__(self):
+	def __init__(self, testrate:float = 0.1):
 		self.data = self.load_images()
-		self.testindexes, self.trainindexes = self.split_data(0.1, len(self.data))
+		self.testindexes, self.trainindexes = self.split_data(testrate, len(self.data))
 
 	def load_images(self):
 		from objectsCrowdAI.Loader import loadCSV
@@ -38,24 +39,25 @@ class MainLoader:
 		return data  # xmin, ymin, xmax, ymax, filepath, label
 
 	def split_data(self, testrate: float, data_length: int):
+		from tools.SplitSet import hashSplit
 		testindexes = hashSplit(testrate, data_length)
 		trainindexes = list(filter(lambda x: x not in testindexes, range(data_length)))
 		return testindexes, trainindexes
 
 	def get_batch(self, num: int, data: [], indexes: [int]):
-		batch = []
-		labels = []
-		for _ in range(num):
+		batch = np.zeros(num, dtype=np.ndarray)
+		labels = np.zeros(num, dtype=np.ndarray)
+
+
+		for i in range(num):
 			xmin, ymin, xmax, ymax, filepath, label = data[indexes[random.randint(0, len(indexes))]]
 
 			image = Img.open(filepath)
 			image.crop(int(xmin), int(ymin), int(xmax), int(ymax))  # crop object
 			image.convert('L')  # Convert to grayscale
 			image.set_label(label)
-
-			batch.append(image.arr2d)
-			labels.append(image.one_hot)
-
+			batch[i] = image.arr2d
+			labels[i] = image.one_hot
 		return batch, labels
 
 

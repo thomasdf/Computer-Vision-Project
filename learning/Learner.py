@@ -1,6 +1,8 @@
 
 import tensorflow as tf
 
+from load.MainLoader import MainLoader
+
 tf.set_random_seed(0)
 
 size = 28
@@ -32,19 +34,24 @@ train_step = optimizer.minimize(cross_entropy)
 sess = tf.Session()
 sess.run(init)
 
+loader = MainLoader(0.1)
+epoch = 0
 for i in range(1000):
 	# load batch of images and correct answers
-	batch_X, batch_Y = mnist.train.next_batch(100)
-	train_data = {X: batch_X, Y_: batch_Y}
+	train_batch_X, train_batch_Y = loader.next_batch(100, is_training=True)
+	train_data = {X: train_batch_X, Y_: train_batch_Y}
 
 	# train
 	sess.run(train_step, feed_dict=train_data)
+	if i % 10 == 9:
+		# success ?
+		a, c = sess.run([accuracy, cross_entropy], feed_dict=train_data)
+		print(str(i) + ": accuracy:" + str(a) + " loss: " + str(c))
+	if i % 100 == 99:
 
-	# success ?
-	a, c = sess.run([accuracy, cross_entropy], feed_dict=train_data)
-
-	# success on test data ?
-	test_data = {X: mnist.test.images, Y_: mnist.test.labels}
-
-
-	a, c = sess.run([accuracy, cross_entropy], feed=test_data)
+		test_batch_X, test_batch_Y = loader.next_batch(100, is_training=False)
+		# success on test data ?
+		test_data = {X: test_batch_X, Y_: test_batch_Y}
+		a, c = sess.run([accuracy, cross_entropy], feed_dict=test_data)
+		print(str(i) + ": ********* epoch " + str(epoch) + " ********* test accuracy:" + str(a) + " test loss: " + str(c))
+		epoch += 1
