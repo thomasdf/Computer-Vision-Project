@@ -12,6 +12,7 @@ imagefolder = base_dir + '/datasets/object-detection-crowdai/'
 dialect = None
 other_labels = 1
 labels = ["Pedestrian", "Car", "Truck"]
+labeloffset = 1
 
 def load_csv(csvpath: str):
 	res = []
