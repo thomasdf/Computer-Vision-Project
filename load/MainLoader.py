@@ -22,6 +22,8 @@ class MainLoader:
 	def __init__(self, testrate:float = 0.1):
 		self.data = self.load_images()
 		self.testindexes, self.trainindexes = self.split_data(testrate, len(self.data))
+		self.index_in_epoch = 0
+
 
 	def load_images(self):
 		from objectsCrowdAI.Loader import loadCSV
@@ -44,13 +46,15 @@ class MainLoader:
 		trainindexes = list(filter(lambda x: x not in testindexes, range(data_length)))
 		return testindexes, trainindexes
 
-	def get_batch(self, num: int, data: [], indexes: [int]):
+	def __get_batch(self, num: int, data: [], indexes: [int]):
 		batch = np.zeros(num, dtype=np.ndarray)
 		labels = np.zeros(num, dtype=np.ndarray)
+		start = self.index_in_epoch
+		self.index_in_epoch += num
+		end = self.index_in_epoch
 
-
-		for i in range(num):
-			xmin, ymin, xmax, ymax, filepath, label = data[indexes[random.randint(0, len(indexes))]]
+		for i,index in enumerate(indexes[start:end]):
+			xmin, ymin, xmax, ymax, filepath, label = data[index]
 
 			image = Img.open(filepath)
 			image.crop(int(xmin), int(ymin), int(xmax), int(ymax))  # crop object
@@ -65,8 +69,8 @@ class MainLoader:
 	def next_batch(self, num: int, is_training = True ):
 
 		if is_training:
-			return self.get_batch(num, self.data, self.trainindexes)
+			return self.__get_batch(num, self.data, self.trainindexes)
 		else:
-			return self.get_batch(num, self.data, self.testindexes)
+			return self.__get_batch(num, self.data, self.testindexes)
 
 

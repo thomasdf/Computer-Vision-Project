@@ -113,7 +113,6 @@ class Img:
 		x_offset = 0
 		y_offset = 0
 		for _ in range(heights):
-
 			for __ in range(widths):
 				new_img.paste(self.image, (x_offset, y_offset))
 				x_offset += self.shape[1]
@@ -122,10 +121,9 @@ class Img:
 
 		return np.array(new_img.crop((0, 0, height, width)))
 
-		# Img.from_image(newer_img).show()
 
 	def rand_crop(self, height, width):
-		if width > self.shape[1] or height > self.shape[0]:
+		if width >= self.shape[1] or height >= self.shape[0]:
 			return self.padd(width, height)
 
 
