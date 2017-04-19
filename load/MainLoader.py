@@ -7,6 +7,8 @@ from image.Image import Img
 
 
 # load_images()
+from tools.SplitSet import hash_split
+
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 car_path = base_dir + '/datasets/object-detection-crowdai/labels.csv'
@@ -47,13 +49,15 @@ class MainLoader:
 		trainindexes = list(filter(lambda x: x not in testindexes, range(data_length)))
 		return testindexes, trainindexes
 
-	def test_chop(self, data: [], indexes: [int]):
+	def test_chop(self, data: [], indexes: [int], size):
 		result = {}
+
+		seeds = hash_split(1, size, len(indexes))
 
 		for i, index in enumerate(indexes):
 			xmin, ymin, xmax, ymax, filepath, label = data[index]
+			result[index] = Img.to_test_crop(xmin, ymin, xmax, ymax, size, seeds[i])
 
-			pass
 
 
 

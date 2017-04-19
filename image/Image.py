@@ -121,13 +121,14 @@ class Img:
 
 		return np.array(new_img.crop((0, 0, height, width)))
 
-	def to_test_crop(self, xmin, ymin, xmax, ymax, size, seed):
+	@classmethod
+	def to_test_crop(cls, xmin, ymin, xmax, ymax, size, seed):
 		height = xmax - xmin
 		width = ymax - ymin
 
-		num_imgs = (height-size)*(width-size)
+		size1d = (height-size)*(width-size)
 
-		pos1d = seed % num_imgs
+		pos1d = seed % size1d
 		x = pos1d % width
 		y = pos1d // width
 
