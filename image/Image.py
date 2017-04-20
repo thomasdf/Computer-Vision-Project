@@ -85,11 +85,14 @@ class Img:
 		return np.multiply(arr, 1.0 / 255.0)
 
 	def normalize(self):
-		self.from_array1d(self.normalized(), self.shape, mode='L')
+		self.from_array2d(self.normalized2d(), mode='L')
 
 	def denormalize(self):
-		arr = np.array(list(map(unnormalize_map, self.arr1d)))
-		self.from_array1d(arr, self.shape, mode='L')
+		arr = self.arr2d
+		arr.astype(np.float32)
+		np.multiply(arr, 255.0)
+
+		self.from_array2d(arr, mode='L')
 
 	def setLabel(self, int):
 		self.labels[int] = 1
