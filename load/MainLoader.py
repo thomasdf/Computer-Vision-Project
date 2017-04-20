@@ -111,7 +111,7 @@ class MainLoader:
 
 
 
-n = MainLoader(15, 0.1)
-# n.test_choppers()
-
-print('hei')
+# n = MainLoader(15, 0.1)
+# # n.test_choppers()
+#
+# print('hei')
