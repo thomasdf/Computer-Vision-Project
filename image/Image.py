@@ -148,6 +148,13 @@ class Img:
 
 
 
+	def get_train_arr1d(self, size: int):
+		arr2d = self.rand_crop(size, size)
+		arr2d = Img.static_normalized2d(arr2d)
+		return arr2d.ravel()
+
+	def get_test_arr1d(self):
+		pass
 
 	def rand_crop(self, height, width):
 		if width >= self.shape[1] or height >= self.shape[0]:

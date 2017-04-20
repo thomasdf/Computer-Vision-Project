@@ -78,7 +78,19 @@ class MainLoader:
 
 		return result
 
+	def __get_trining_batch(self, num: int, num_from_img: int):
+		data = self.data
+		indexes = self.trainindexes
 
+		batch = []
+		labels = []
+		start = self.index_in_epoch
+		self.index_in_epoch += num
+		end = self.index_in_epoch
+
+		for i, index in enumerate(indexes[start:end]):
+
+			pass
 
 
 
@@ -98,24 +110,11 @@ class MainLoader:
 			image.crop(int(xmin), int(ymin), int(xmax), int(ymax))  # crop object
 			image.convert('L')  # Convert to grayscale
 			image.set_label(label)
-			# image.normalize()
 
-			# if not is_training:
-			# 	arr = image.normalized2d()
-			# 	p = self.test_chops[index] # min:int, ymin:int, xmax:int, ymax:int
-			# 	# if p == None:
-			# 	# 	continue
-			# 	xmin, ymin, xmax, ymax = p
-			#
-			# 	arr = arr[ymin:ymax, xmin:xmax]
-			# else:
-			# 	arr = image.rand_crop(self.size, self.size)
-			# 	arr = Img.static_normalized2d(arr)
+
 
 			if is_training:
-				arr2d = image.rand_crop(self.size, self.size)
-				arr2d = Img.static_normalized2d(arr2d)
-				arr1d = arr2d.ravel()
+				arr1d = image.get_train_arr1d(self.size)
 			else:
 				arr2d = image.normalized2d()
 				xmin, ymin, xmax, ymax = self.test_chops[index]
@@ -126,9 +125,8 @@ class MainLoader:
 			batch.append(arr1d)
 			labels.append(image.one_hot)
 
-			stacked_batch = np.vstack(batch)
-			stacked_labels = np.vstack(labels)
-
+		stacked_batch = np.vstack(batch)
+		stacked_labels = np.vstack(labels)
 
 		return stacked_batch, stacked_labels
 
