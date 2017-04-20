@@ -77,8 +77,11 @@ class Img:
 	def convert(self, mode):
 		return self.__update(self.converted(mode))
 
-	def normalized(self):
-		return np.array(list(map(normalize_map, self.arr1d)))
+	def normalized1d(self):
+		arr = self.arr1d
+		arr.astype(np.float32)
+		return np.multiply(arr, 1.0 / 255.0)
+
 	def normalized2d(self):
 		arr = self.arr2d
 		arr.astype(np.float32)
@@ -90,7 +93,7 @@ class Img:
 		return np.multiply(array, 1.0 / 255.0)
 
 	def normalize(self):
-		self.__update(Image.fromarray(self.normalized().reshape(self.shape), mode='L'))
+		self.__update(Image.fromarray(self.normalized1d().reshape(self.shape), mode='L'))
 
 	def denormalize(self):
 		arr = self.arr2d

@@ -98,21 +98,30 @@ class MainLoader:
 			image.set_label(label)
 			# image.normalize()
 
+			# if not is_training:
+			# 	arr = image.normalized2d()
+			# 	p = self.test_chops[index] # min:int, ymin:int, xmax:int, ymax:int
+			# 	# if p == None:
+			# 	# 	continue
+			# 	xmin, ymin, xmax, ymax = p
+			#
+			# 	arr = arr[ymin:ymax, xmin:xmax]
+			# else:
+			# 	arr = image.rand_crop(self.size, self.size)
+			# 	arr = Img.static_normalized2d(arr)
+
 			if not is_training:
-				arr = image.normalized2d()
-				p = self.test_chops[index] # min:int, ymin:int, xmax:int, ymax:int
-				# if p == None:
-				# 	continue
-				xmin, ymin, xmax, ymax = p
-
-				arr = arr[ymin:ymax, xmin:xmax]
+				arr2d = image.normalized2d()
+				xmin, ymin, xmax, ymax = self.test_chops[index]
+				arr2d = arr2d[ymin:ymax, xmin:xmax]
+				arr1d = arr2d.ravel()
 			else:
-				arr = image.rand_crop(self.size, self.size)
-				arr = Img.static_normalized2d(arr)
+				arr2d = image.rand_crop(self.size, self.size)
+				arr2d = Img.static_normalized2d(arr2d)
+				arr1d = arr2d.ravel()
 
 
-
-			batch[i] = arr
+			batch[i] = arr1d
 			labels[i] = image.one_hot
 		return batch, labels
 
