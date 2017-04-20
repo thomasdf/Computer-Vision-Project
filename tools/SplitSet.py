@@ -3,7 +3,7 @@ from tools import holybook
 
 import sys
 
-_hash = lambda text, start, end, length: int(hashlib.sha1(text[start:end].encode('utf-8')).hexdigest(), 16) % length
+_hash = lambda text, start, end, length: hash(text[start:end].encode('utf-8')) % length
 
 scripture = (holybook.holytext)
 

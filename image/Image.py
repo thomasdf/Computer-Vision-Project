@@ -127,8 +127,7 @@ class Img:
 		width = ymax - ymin
 
 		size1d = (height-size)*(width-size)
-
-		pos1d = seed % size1d
+		pos1d = 0 if size1d == 0 else seed % size1d
 		x = pos1d % width
 		y = pos1d // width
 
