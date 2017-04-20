@@ -83,8 +83,10 @@ class MainLoader:
 
 
 	def __get_batch(self, num: int, data: [], indexes: [int], is_training: bool):
-		batch = np.zeros(num, dtype=np.ndarray)
-		labels = np.zeros(num, dtype=np.ndarray)
+		# batch = np.ndarray(num, dtype=np.ndarray)
+		batch = []
+		# labels = np.ndarray(num, dtype=np.ndarray)
+		labels = []
 		start = self.index_in_epoch
 		self.index_in_epoch += num
 		end = self.index_in_epoch
@@ -120,10 +122,14 @@ class MainLoader:
 				arr2d = Img.static_normalized2d(arr2d)
 				arr1d = arr2d.ravel()
 
+			batch.append(arr1d)
+			labels.append(image.one_hot)
 
-			batch[i] = arr1d
-			labels[i] = image.one_hot
-		return batch, labels
+			stacked_batch = np.vstack(batch)
+			stacked_labels = np.vstack(labels)
+
+
+		return stacked_batch, stacked_labels
 
 
 
