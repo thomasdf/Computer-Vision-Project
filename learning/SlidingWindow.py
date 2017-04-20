@@ -1,10 +1,12 @@
 import numpy as np
 
 from image.Image import Img
+from image import Image
 
 
 def slidingwindowclassify(image: Img, stride: int, height: int, width: int, classifier: function):
 	"""Slides a classifier over an image. That is: runs classifier for each height*width frame, stride apart"""
+	image.normalize()
 	imgwidth = image.shape[1]
 	imgheight = image.shape[0]
 	result = []
@@ -19,7 +21,7 @@ def slidingwindowclassify(image: Img, stride: int, height: int, width: int, clas
 		xmin = 0
 		xmax = width
 		for __ in range(horizontal):
-			result.append(classify(image.crop(xmin, ymin, xmax, ymax), classifier))
+			result.append(classify(Img.from_image(image.image).crop(xmin, ymin, xmax, ymax), classifier)) #not efficient at all...
 			xmin = xmin + stride
 			xmax = xmax + stride
 		ymin = ymin + stride
@@ -28,5 +30,4 @@ def slidingwindowclassify(image: Img, stride: int, height: int, width: int, clas
 
 def classify(image: Img, classifier: function):
 	"""runs the classifier on the image"""
-	image.normalize()
 	return classifier(image.arr1d)
