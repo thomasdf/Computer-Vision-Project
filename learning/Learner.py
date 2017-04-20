@@ -1,13 +1,14 @@
 
 import tensorflow as tf
 
+from image.Image import static_num_labels
 from load.MainLoader import MainLoader
 
 tf.set_random_seed(0)
 
 size = 28
 length = size*size
-labelsize = 4
+labelsize = static_num_labels
 
 X = tf.placeholder(tf.float32, [None, size, size, 1])
 W = tf.Variable(tf.zeros([length, labelsize]))
