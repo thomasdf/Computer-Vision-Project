@@ -38,9 +38,14 @@ class MainLoader:
 		data = []
 
 		for xmin, ymin, xmax, ymax, filename, label, url in car_data:
+			if xmin == xmax or ymin == ymax:
+				continue
+
 			data.append((xmin, ymin, xmax, ymax, (car_img_path + filename), labels.index(label)))
 
 		for filename, w, h, xmin, ymin, xmax, ymax, label in sign_data:
+			if xmin == xmax or ymin == ymax:
+				continue
 			data.append((xmin, ymin, xmax, ymax, (sign_img_path + filename), 0))
 
 		return data  # xmin, ymin, xmax, ymax, filepath, label
@@ -96,8 +101,8 @@ class MainLoader:
 			if not is_training:
 				arr = image.normalized2d()
 				p = self.test_chops[index] # min:int, ymin:int, xmax:int, ymax:int
-				if p == None:
-					continue
+				# if p == None:
+				# 	continue
 				xmin, ymin, xmax, ymax = p
 
 				arr = arr[ymin:ymax, xmin:xmax]

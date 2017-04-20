@@ -133,8 +133,8 @@ class Img:
 	def to_test_crop(cls, xmin:int, ymin:int, xmax:int, ymax:int, size:int, seed:int):
 		height = xmax - xmin
 		width = ymax - ymin
-		if width == 0:
-			return None
+		# if width == 0:
+		# 	return None
 
 		size1d = (height-size)*(width-size)
 		pos1d = 0 if size1d == 0 else seed % size1d
@@ -150,19 +150,18 @@ class Img:
 		if width >= self.shape[1] or height >= self.shape[0]:
 			return self.padd(width, height)
 
-
-
 		rand_gen = lambda r: random.randint(0, r)
-		rand_y = rand_gen(self.shape[0])
-		rand_x = rand_gen(self.shape[1])
 
-		offset_y = sign() * width + rand_y
-		offset_x = sign() * height + rand_x
+		while True:
+			rand_y = rand_gen(self.shape[0])
+			rand_x = rand_gen(self.shape[1])
+			offset_y = sign() * width + rand_y
+			offset_x = sign() * height + rand_x
+			if (0 <= offset_y < self.shape[0]) and (0 <= offset_x < self.shape[1]):
+				break
 
-		if not(0 < offset_y < self.shape[0]):
-			self.rand_crop(width, height)
-		if not(0 < offset_x < self.shape[1]):
-			self.rand_crop(width, height)
+
+
 
 		x = (rand_x, offset_x)
 		y = (rand_y, offset_y)
