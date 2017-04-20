@@ -20,6 +20,8 @@ def sign():
 class Img:
 
 	def __init__(self, image:PIL.Image):
+		self.labels = np.zeros(static_num_labels, dtype=float)
+		self.full_image = image
 		self.__update(image)
 
 	def __update(self, image: PIL.Image):
@@ -27,11 +29,9 @@ class Img:
 			raise Exception('Plis dude plis... ')
 
 		self.image = image
-		self.full_image = self.image
 		self.arr2d = np.array(self.image)
 		self.shape = self.arr2d.shape
 		self.arr1d = self.arr2d.ravel()
-		self.labels = np.zeros(4, dtype=float)
 		return self
 
 
@@ -84,15 +84,20 @@ class Img:
 		arr.astype(np.float32)
 		return np.multiply(arr, 1.0 / 255.0)
 
+	@classmethod
+	def static_normalized2d(cls, array: np.ndarray):
+		array.astype(np.float32)
+		return np.multiply(array, 1.0 / 255.0)
+
 	def normalize(self):
-		self.from_array2d(self.normalized2d(), mode='L')
+		self.__update(Image.fromarray(self.normalized().reshape(self.shape), mode='L'))
 
 	def denormalize(self):
 		arr = self.arr2d
 		arr.astype(np.float32)
-		np.multiply(arr, 255.0)
+		arr = np.multiply(arr, 255.0)
 
-		self.from_array2d(arr, mode='L')
+		self.__update(Image.fromarray(arr, mode='L'))
 
 	def setLabel(self, int):
 		self.labels[int] = 1
@@ -128,6 +133,8 @@ class Img:
 	def to_test_crop(cls, xmin:int, ymin:int, xmax:int, ymax:int, size:int, seed:int):
 		height = xmax - xmin
 		width = ymax - ymin
+		if width == 0:
+			return None
 
 		size1d = (height-size)*(width-size)
 		pos1d = 0 if size1d == 0 else seed % size1d

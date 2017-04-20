@@ -77,7 +77,7 @@ class MainLoader:
 
 
 
-	def __get_batch(self, num: int, data: [], indexes: [int], is_testing: bool):
+	def __get_batch(self, num: int, data: [], indexes: [int], is_training: bool):
 		batch = np.zeros(num, dtype=np.ndarray)
 		labels = np.zeros(num, dtype=np.ndarray)
 		start = self.index_in_epoch
@@ -91,15 +91,20 @@ class MainLoader:
 			image.crop(int(xmin), int(ymin), int(xmax), int(ymax))  # crop object
 			image.convert('L')  # Convert to grayscale
 			image.set_label(label)
-			image.normalize()
+			# image.normalize()
 
-			arr = image.arr2d
-			if is_testing:
+			if not is_training:
+				arr = image.normalized2d()
+				p = self.test_chops[index] # min:int, ymin:int, xmax:int, ymax:int
+				if p == None:
+					continue
+				xmin, ymin, xmax, ymax = p
 
-				xmin, ymin, xmax, ymax = self.test_chops[index] # min:int, ymin:int, xmax:int, ymax:int
 				arr = arr[ymin:ymax, xmin:xmax]
 			else:
 				arr = image.rand_crop(self.size, self.size)
+				arr = Img.static_normalized2d(arr)
+
 
 
 			batch[i] = arr
@@ -111,9 +116,9 @@ class MainLoader:
 	def next_batch(self, num: int, is_training:bool = True):
 
 		if is_training:
-			return self.__get_batch(num, self.data, self.testindexes, True)
+			return self.__get_batch(num, self.data, self.trainindexes, True)
 		else:
-			return self.__get_batch(num, self.data, self.trainindexes, False)
+			return self.__get_batch(num, self.data, self.testindexes, False)
 
 
 
