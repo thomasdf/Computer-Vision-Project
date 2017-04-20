@@ -112,15 +112,16 @@ class MainLoader:
 			# 	arr = image.rand_crop(self.size, self.size)
 			# 	arr = Img.static_normalized2d(arr)
 
-			if not is_training:
+			if is_training:
+				arr2d = image.rand_crop(self.size, self.size)
+				arr2d = Img.static_normalized2d(arr2d)
+				arr1d = arr2d.ravel()
+			else:
 				arr2d = image.normalized2d()
 				xmin, ymin, xmax, ymax = self.test_chops[index]
 				arr2d = arr2d[ymin:ymax, xmin:xmax]
 				arr1d = arr2d.ravel()
-			else:
-				arr2d = image.rand_crop(self.size, self.size)
-				arr2d = Img.static_normalized2d(arr2d)
-				arr1d = arr2d.ravel()
+
 
 			batch.append(arr1d)
 			labels.append(image.one_hot)

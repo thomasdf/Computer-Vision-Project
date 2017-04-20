@@ -1,12 +1,14 @@
 import numpy as np
 import tensorflow as tf
 import os
+
+import time
 from tensorflow.python.client import device_lib
 
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
 from load.MainLoader import MainLoader
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 print(device_lib.list_local_devices())
 
 #batch size to use when loading data
@@ -79,12 +81,19 @@ def train_neural_network(x):
 
 		for epoch in range(num_epochs):
 			epoch_loss = 0
+			t0 = time.time()
 			for batch_num in range(num_batches):
+				t_batch = time.time()
 				epoch_x, epoch_y = loader.next_batch(batch_size) #load data from mnist dataset
+				print('\tbatch time', time.time() - t_batch)
+
+
 				#x = image, y = class
 				batch, c = sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
 				epoch_loss += c
-				print("Batch ", batch_num, " of ", num_batches, " complete. Loss ", epoch_loss)
+				t1 = time.time()
+				print("Batch ", batch_num, " of ", num_batches, " complete. Loss ", epoch_loss, ' batch', batch, ' time', (t1 - t0))
+				t0 = t1
 			print("Epoch", epoch, " of ", num_epochs, " loss: ", epoch_loss)
 
 	   # correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
