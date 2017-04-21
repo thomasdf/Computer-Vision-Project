@@ -74,33 +74,49 @@ class MainLoader:
 
 		for i, index in enumerate(indexes):
 			xmin, ymin, xmax, ymax, filepath, label = self.data[index]
-			result[index] = Img.to_test_crop(int(xmin), int(ymin), int(xmax), int(ymax), self.size, index)
+			result[index] = Img.chop_coordinates(int(xmin), int(ymin), int(xmax), int(ymax), self.size, index)
 
 		return result
 
-	def __get_trining_batch(self, num: int, num_from_img: int):
+	def __get_training_batch(self, batch_size: int, num_images: int):
 		data = self.data
 		indexes = self.trainindexes
-
+		num_samples = batch_size // num_images
 		batch = []
 		labels = []
 		start = self.index_in_epoch
-		self.index_in_epoch += num
+		self.index_in_epoch += batch_size
 		end = self.index_in_epoch
 
 		for i, index in enumerate(indexes[start:end]):
+			xmin, ymin, xmax, ymax, filepath, label = data[index]
 
-			pass
+			image = Img.open(filepath)
+			image.crop(int(xmin), int(ymin), int(xmax), int(ymax))  # crop object
 
+			image.convert('L')  # Convert to grayscale
+			image.set_label(label)
+			image.normalize()
 
+			# arr2d = image.rand_crop(self.size, self.size)
+			# arr2d = Img.static_normalized2d(arr2d)
 
-	def __get_batch(self, num: int, data: [], indexes: [int], is_training: bool):
+			for j in range(num_samples):
+				arr2d = image.randcrop(image.arr2d, self.size)
+				batch.append(arr2d.ravel())
+
+		stacked_batch = np.vstack(batch)
+		stacked_labels = np.vstack(labels)
+
+		return stacked_batch, stacked_labels
+
+	def __get_batch(self, batch_size: int, data: [], indexes: [int], is_training: bool):
 		# batch = np.ndarray(num, dtype=np.ndarray)
 		batch = []
 		# labels = np.ndarray(num, dtype=np.ndarray)
 		labels = []
 		start = self.index_in_epoch
-		self.index_in_epoch += num
+		self.index_in_epoch += batch_size
 		end = self.index_in_epoch
 
 		for i,index in enumerate(indexes[start:end]):
@@ -111,16 +127,10 @@ class MainLoader:
 			image.convert('L')  # Convert to grayscale
 			image.set_label(label)
 
-
-
-			if is_training:
-				arr1d = image.get_train_arr1d(self.size)
-			else:
-				arr2d = image.normalized2d()
-				xmin, ymin, xmax, ymax = self.test_chops[index]
-				arr2d = arr2d[ymin:ymax, xmin:xmax]
-				arr1d = arr2d.ravel()
-
+			arr2d = image.normalized2d()
+			xmin, ymin, xmax, ymax = self.test_chops[index]
+			arr2d = arr2d[ymin:ymax, xmin:xmax]
+			arr1d = arr2d.ravel()
 
 			batch.append(arr1d)
 			labels.append(image.one_hot)
@@ -132,12 +142,13 @@ class MainLoader:
 
 
 
-	def next_batch(self, num: int, is_training:bool = True):
+	def next_batch(self, batch_size: int, is_training:bool = True):
 
 		if is_training:
-			return self.__get_batch(num, self.data, self.trainindexes, True)
+			return self.__get_training_batch(batch_size, batch_size//10)
+			# return self.__get_batch(batch_size, self.data, self.trainindexes, True)
 		else:
-			return self.__get_batch(num, self.data, self.testindexes, False)
+			return self.__get_batch(batch_size, self.data, self.testindexes, False)
 
 
 

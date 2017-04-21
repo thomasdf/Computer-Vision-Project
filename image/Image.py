@@ -93,7 +93,7 @@ class Img:
 		return np.multiply(array, 1.0 / 255.0)
 
 	def normalize(self):
-		self.__update(Image.fromarray(self.normalized1d().reshape(self.shape), mode='L'))
+		self.__update(Image.fromarray(self.normalized2d(), mode='L'))
 
 	def denormalize(self):
 		arr = self.arr2d
@@ -109,52 +109,52 @@ class Img:
 	def denormalized(cls, array: np.array):
 		return np.array(list(map(unnormalize_map, array)))
 
+	@classmethod
+	def croparray(self, array2d: np.ndarray, xmin, ymin, xmax, ymax):
+		return array2d[ymin:ymax, xmin:xmax]
 
-	def croped_arr(self, xmin, ymin, xmax, ymax):
-		return self.arr2d[ymin:ymax, xmin:xmax]
 
-	def padd(self, width, height, mode=static_mode):
-		widths = np.math.ceil(width / self.shape[1])
-		max_width = widths*self.shape[1]
-		heights = np.math.ceil(height / self.shape[0])
-		max_height = heights*self.shape[0]
 
-		new_img = Image.new(mode, (max_width, max_height))
-
-		x_offset = 0
-		y_offset = 0
-		for _ in range(heights):
-			for __ in range(widths):
-				new_img.paste(self.image, (x_offset, y_offset))
-				x_offset += self.shape[1]
-			y_offset += self.shape[0]
-			x_offset = 0
-
-		return np.array(new_img.crop((0, 0, height, width)))
 
 	@classmethod
-	def to_test_crop(cls, xmin:int, ymin:int, xmax:int, ymax:int, size:int, seed:int):
+	def padd(cls, array:np.ndarray, sample_img_size):
+		widths = np.math.ceil(sample_img_size / array.shape[1])
+		heights = np.math.ceil(sample_img_size / array.shape[0])
+		wide_arr = np.concatenate((array for _ in range(widths)), axis=0)
+		full_arr = np.concatenate((wide_arr for _ in range(heights)), axis=1)
+
+		return full_arr[0:sample_img_size, 0:sample_img_size]
+
+	@classmethod
+	def chop_coordinates(cls, xmin:int, ymin:int, xmax:int, ymax:int, sample_img_size:int, seed:int):
 		height = xmax - xmin
 		width = ymax - ymin
 		# if width == 0:
 		# 	return None
 
-		size1d = (height-size)*(width-size)
+		size1d = (height - sample_img_size) * (width - sample_img_size)
 		pos1d = 0 if size1d == 0 else seed % size1d
 		x = pos1d % width
 		y = pos1d // width
 
-		return x, y, x + size, y + size
+		return x, y, x + sample_img_size, y + sample_img_size
 
 
 
 	def get_train_arr1d(self, size: int):
-		arr2d = self.rand_crop(size, size)
+		arr2d = self.randcrop(self.arr2d, size)
 		arr2d = Img.static_normalized2d(arr2d)
 		return arr2d.ravel()
 
 	def get_test_arr1d(self):
 		pass
+
+	@classmethod
+	def randcrop(cls, array: np.ndarray, sampel_img_size: int):
+		if sampel_img_size >= array.shape[1] or sampel_img_size >= array.shape[0]:
+			return cls.padd(array, sampel_img_size)
+
+		return cls.croparray(array, cls.chop_coordinates(0, 0, array.shape[1], array.shape[0], sampel_img_size, seed), random.randint(0, 4000013))
 
 	def rand_crop(self, height, width):
 		if width >= self.shape[1] or height >= self.shape[0]:
@@ -177,7 +177,7 @@ class Img:
 		y = (rand_y, offset_y)
 
 
-		return self.croped_arr(min(x), min(y), max(x), max(y))
+		return self.croparray(min(x), min(y), max(x), max(y))
 
 
 
