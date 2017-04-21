@@ -4,10 +4,10 @@ import os
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
-path = base_dir + '/datasets/object-detection-crowdai/1479498371963069978.jpg'
+random_pic_path = base_dir + '/datasets/object-detection-crowdai/1479498371963069978.jpg'
 
 def draw2d(array2d:np.ndarray, xmin:int, ymin:int, xmax:int, ymax:int, color: [int] = (255, 0, 0)):
-	a =  array2d.copy()
+	a = array2d.copy()
 	for y, y_arr in enumerate(array2d):
 
 		for x, val in enumerate(y_arr):
@@ -18,7 +18,7 @@ def draw2d(array2d:np.ndarray, xmin:int, ymin:int, xmax:int, ymax:int, color: [i
 	return a
 
 
-img = Image.open(path)
+img = Image.open(random_pic_path)
 arr = np.asarray(img)
 arr = draw2d(arr, 10, 10, 200, 200)
 Image.fromarray(arr).show()
