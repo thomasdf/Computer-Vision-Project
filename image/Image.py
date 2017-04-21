@@ -94,7 +94,7 @@ class Img:
 		return np.multiply(arr, 1.0 / 255.0)
 
 	@classmethod
-	def static_normalized2d(cls, array: np.ndarray):
+	def static_normalized(cls, array: np.ndarray):
 		array.astype(np.float32)
 		return np.multiply(array, 1.0 / 255.0)
 
