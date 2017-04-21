@@ -2,6 +2,7 @@ import os
 import random
 
 import numpy as np
+from PIL import Image
 
 from image.Image import Img
 
@@ -23,12 +24,14 @@ class MainLoader:
 
 	def __init__(self, size: int, testrate:float = 0.1):
 		self.size = size
-		self.index_in_epoch = 0
+		self.reset_index()
 		self.data = self.load_images()
 		self.testindexes, self.trainindexes = self.split_data(testrate, len(self.data))
 		self.test_chops = self.test_choppers()
 
-
+	def reset_index(self):
+		self.index_test = 0
+		self.index_training = 0
 
 	def load_images(self):
 		from objectsCrowdAI.Loader import load_csv
@@ -82,42 +85,51 @@ class MainLoader:
 		data = self.data
 		indexes = self.trainindexes
 		num_samples = batch_size // num_images
+
 		batch = []
 		labels = []
-		start = self.index_in_epoch
-		self.index_in_epoch += batch_size
-		end = self.index_in_epoch
+		start = self.index_training
+		self.index_training += num_images
+		end = self.index_training
 
 		for i, index in enumerate(indexes[start:end]):
 			xmin, ymin, xmax, ymax, filepath, label = data[index]
 
-			image = Img.open(filepath)
-			image.crop(int(xmin), int(ymin), int(xmax), int(ymax))  # crop object
+			# image = Img.open(filepath, mode='L')
+			image = Image.open(filepath).convert(mode='L')
 
-			image.convert('L')  # Convert to grayscale
-			image.set_label(label)
-			image.normalize()
+			# image = image.crop((int(xmin), int(ymin), int(xmax), int(ymax)))
+			arr2d = np.array(image)
+			arr2d = arr2d[int(ymin):int(ymax), int(xmin):int(xmax)]
+
+
+			arr2d.astype(np.float32)
+			arr2d = np.multiply(arr2d, 1.0 / 255.0)
+
+			# image.convert('L')  # Convert to grayscale
+			# img_arr = image.normalized2d()
 
 			# arr2d = image.rand_crop(self.size, self.size)
 			# arr2d = Img.static_normalized2d(arr2d)
 
 			for j in range(num_samples):
-				arr2d = image.randcrop(image.arr2d, self.size)
+				arr2d = Img.randcrop(arr2d, self.size)
 				batch.append(arr2d.ravel())
+				labels.append(label)
 
 		stacked_batch = np.vstack(batch)
 		stacked_labels = np.vstack(labels)
 
 		return stacked_batch, stacked_labels
 
-	def __get_batch(self, batch_size: int, data: [], indexes: [int], is_training: bool):
+	def __get_test_batch(self, batch_size: int, data: [], indexes: [int], is_training: bool):
 		# batch = np.ndarray(num, dtype=np.ndarray)
 		batch = []
 		# labels = np.ndarray(num, dtype=np.ndarray)
 		labels = []
-		start = self.index_in_epoch
-		self.index_in_epoch += batch_size
-		end = self.index_in_epoch
+		start = self.index_test
+		self.index_test += batch_size
+		end = self.index_test
 
 		for i,index in enumerate(indexes[start:end]):
 			xmin, ymin, xmax, ymax, filepath, label = data[index]
@@ -148,7 +160,7 @@ class MainLoader:
 			return self.__get_training_batch(batch_size, batch_size//10)
 			# return self.__get_batch(batch_size, self.data, self.trainindexes, True)
 		else:
-			return self.__get_batch(batch_size, self.data, self.testindexes, False)
+			return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
 
 
 

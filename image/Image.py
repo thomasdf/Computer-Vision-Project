@@ -118,10 +118,10 @@ class Img:
 
 	@classmethod
 	def padd(cls, array:np.ndarray, sample_img_size):
-		widths = np.math.ceil(sample_img_size / array.shape[1])
-		heights = np.math.ceil(sample_img_size / array.shape[0])
-		wide_arr = np.concatenate((array for _ in range(widths)), axis=0)
-		full_arr = np.concatenate((wide_arr for _ in range(heights)), axis=1)
+		widths = int(np.ceil(sample_img_size / array.shape[1]))
+		heights = int(np.ceil(sample_img_size / array.shape[0]))
+		wide_arr = np.concatenate([array for _ in range(widths)], axis=0)
+		full_arr = np.concatenate([wide_arr for _ in range(heights)], axis=1)
 
 		return full_arr[0:sample_img_size, 0:sample_img_size]
 
@@ -154,7 +154,7 @@ class Img:
 		if sampel_img_size >= array.shape[1] or sampel_img_size >= array.shape[0]:
 			return cls.padd(array, sampel_img_size)
 
-		return cls.croparray(array, cls.chop_coordinates(0, 0, array.shape[1], array.shape[0], sampel_img_size, seed), random.randint(0, 4000013))
+		return cls.croparray(array, *cls.chop_coordinates(0, 0, array.shape[1], array.shape[0], sampel_img_size, random.randint(0, 4000013)))
 
 	def rand_crop(self, height, width):
 		if width >= self.shape[1] or height >= self.shape[0]:
