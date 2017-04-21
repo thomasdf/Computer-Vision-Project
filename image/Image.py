@@ -157,3 +157,4 @@ class Img:
 
 		return cls.croparray(array, xmin, ymin, xmax, ymax)
 
+
