@@ -163,8 +163,8 @@ class MainLoader:
 			return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
 
 
-
-# n = MainLoader(15, 0.1)
-# # n.test_choppers()
-#
-# print('hei')
+print('Allah!')
+n = MainLoader(15, 0.1)
+print('Niqab!')
+n.next_batch(10000)
+print('hei')

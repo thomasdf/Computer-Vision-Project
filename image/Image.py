@@ -150,7 +150,7 @@ class Img:
 
 	@classmethod
 	def randcrop(cls, array: np.ndarray, sampel_img_size: int):
-		if array.shape[0] <= sampel_img_size or array.shape[1] <= sampel_img_size:
+		if array.shape[0] < sampel_img_size or array.shape[1] < sampel_img_size:
 			return cls.padd(array, sampel_img_size)
 
 		xmin, ymin, xmax, ymax = cls.chop_coordinates(0, 0, array.shape[1], array.shape[0], sampel_img_size, random.randint(0, 4000013))
