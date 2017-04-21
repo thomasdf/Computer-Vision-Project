@@ -114,7 +114,8 @@ class MainLoader:
 
 			for j in range(num_samples):
 				arr_rand = Img.randcrop(arr2d, self.size)
-				batch.append(arr_rand.ravel())
+				arr1d = arr_rand.ravel()
+				batch.append(arr1d)
 				labels.append(label)
 
 		stacked_batch = np.vstack(batch)
@@ -163,8 +164,10 @@ class MainLoader:
 			return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
 
 
-print('Allah!')
-n = MainLoader(15, 0.1)
-print('Niqab!')
-n.next_batch(10000)
-print('hei')
+# print('Allah!')
+# n = MainLoader(15, 0.1)
+# print('Niqab!')
+# n.next_batch(1000)
+# print('batchy macbatchface')
+# n.next_batch(1000, False)
+# print('hei')
