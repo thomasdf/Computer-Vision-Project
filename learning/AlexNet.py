@@ -20,11 +20,11 @@ print(device_lib.list_local_devices())
 
 # data loader
 test_set_size = 0.1  # fraction of dataset used as test-set
-loader = MainLoader(28, test_set_size)
+loader = MainLoader(224, test_set_size)
 print("loader initialized")
 
 # data things
-batch_size = 500
+batch_size = 50
 num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size))
 
 # training things
@@ -33,15 +33,15 @@ dropout_rate = 0.2
 lr = 0.00001
 
 # classifier things
-size = 28  # (X * X size)
+size = 224 # (X * X size)
 n_classes = len(labels)
 
 # tensorflow things
-x = tf.placeholder("float", [None, size * size])
+x = tf.placeholder("float", [None, 224*224])
 y = tf.placeholder("float")
 
-mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-n_classes = 10
+#mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+#n_classes = 10
 
 
 ###########################################################################################
@@ -61,17 +61,17 @@ def neural_network_model(x, is_training: bool = True):
 		inputs=input,
 		filters=96,
 		kernel_size=11,
-		padding=2,
+		padding="valid",
 		strides=4,
 		activation=tf.nn.relu,
-	)  # [batchsize, 224, 224, 96]
+	)  # [batchsize, 54, 54, 96]
 
 	# max-pooling layer 1
 	pool1 = tf.layers.max_pooling2d(
 		inputs=conv1,
 		pool_size=3,
 		strides=2,
-	) #[batchsize, 113, 113, 96]
+	) #[batchsize, 26, 26, 96]
 
 	# convolutional layer 2
 	conv2 = tf.layers.conv2d(
@@ -79,50 +79,52 @@ def neural_network_model(x, is_training: bool = True):
 		filters=256,
 		kernel_size=5,
 		strides=1,
-		padding=1,
+		padding="same",
 		activation=tf.nn.relu,
-	)  # [batchsize, 113, 113, 256]
+	)  # [batchsize, 26, 26, 256]
 
 	# pooling layer 2
 	pool2 = tf.layers.max_pooling2d(
 		inputs=conv2,
 		pool_size=3,
 		strides=2,
-	)  # [batchsize, 56, 56, 256]
+	)  # [batchsize, 12, 12, 256]
 
 	conv3 = tf.layers.conv2d(
 		inputs=pool2,
 		filters=384,
 		kernel_size=3,
 		strides=1,
-		padding=1,
+		padding="same",
 		activation=tf.nn.relu,
-	)
+	) #[12,12, 384]
 
 	conv4 = tf.layers.conv2d(
 		inputs=conv3,
 		filters=384,
 		kernel_size=3,
 		strides=1,
-		padding=1,
-	)
+		padding="same",
+	) #[ , 12, 12, 384 ]
 
 	conv5 = tf.layers.conv2d(
 		inputs=conv4,
 		filters=256,
 		kernel_size=3,
 		strides=1,
-		padding=1,
+		padding="same",
 		activation=tf.nn.relu,
-	)
+	) #[, 12, 12, 256]
 
 	pool3 = tf.layers.max_pooling2d(
 		inputs=conv5,
 		pool_size=3,
 		strides=2,
-	)
+	)#[, 5, 5, 256]
 
-	pool3flattened = tf.reshape(pool3, [-1, 13 * 13 * 256])
+	print(tf.shape(pool3))
+
+	pool3flattened = tf.reshape(pool3, [-1, 5*5*256])
 
 	#fully connected
 	fc1 = tf.layers.dense(
@@ -177,8 +179,8 @@ def train_neural_network(x):
 			t0 = time.time()
 			for batch_num in range(num_batches):
 				t_batch = time.time()
-#				batch_x, batch_y = loader.next_batch(batch_size)  # load data from mnist dataset
-				batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from mnist dataset
+				batch_x, batch_y = loader.next_batch(batch_size)  # load data from mnist dataset
+	#			batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from mnist dataset
 				print('\tbatch loading time', time.time() - t_batch)
 
 				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: batch_x, y: batch_y})
@@ -196,8 +198,8 @@ def train_neural_network(x):
 
 			epoch_acc = 0
 			for _ in range(num_batches):
-#            test_batch_x, test_batch_y = loader.next_batch(batch_size, False)
-				test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
+				test_batch_x, test_batch_y = loader.next_batch(batch_size, False)
+				#test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
 				print("Calculating accuracy. ", "{:10.2f}".format((_ / num_batches) * 100), "% complete.")
 			print("Epoch Accuracy: ", epoch_acc / num_batches)
