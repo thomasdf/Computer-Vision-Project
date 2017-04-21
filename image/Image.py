@@ -59,6 +59,12 @@ class Img:
 		self.one_hot = np.zeros(static_num_labels)
 		self.one_hot[labelID] = 1
 
+	@classmethod
+	def to_onehot(cls, label:int):
+		one_hot = np.zeros(static_num_labels)
+		one_hot[label] = 1
+		return one_hot
+
 	def show(self):
 		self.image.show()
 
@@ -127,59 +133,27 @@ class Img:
 
 	@classmethod
 	def chop_coordinates(cls, xmin:int, ymin:int, xmax:int, ymax:int, sample_img_size:int, seed:int):
-		height = xmax - xmin
-		width = ymax - ymin
+		width = xmax - xmin
+		height = ymax - ymin
+		if height <= sample_img_size or width <= sample_img_size :
+			return xmin, ymin, xmax, ymax
+
 		# if width == 0:
 		# 	return None
-
-		size1d = (height - sample_img_size) * (width - sample_img_size)
-		pos1d = 0 if size1d == 0 else seed % size1d
-		x = pos1d % width
-		y = pos1d // width
+		new_width = width - sample_img_size
+		size1d = (height - sample_img_size) * new_width
+		pos1d = seed % size1d if size1d != 0 else 0
+		x =  (pos1d % new_width)
+		y =  (pos1d // new_width)
 
 		return x, y, x + sample_img_size, y + sample_img_size
 
-
-
-	def get_train_arr1d(self, size: int):
-		arr2d = self.randcrop(self.arr2d, size)
-		arr2d = Img.static_normalized2d(arr2d)
-		return arr2d.ravel()
-
-	def get_test_arr1d(self):
-		pass
-
 	@classmethod
 	def randcrop(cls, array: np.ndarray, sampel_img_size: int):
-		if sampel_img_size >= array.shape[1] or sampel_img_size >= array.shape[0]:
+		if array.shape[0] <= sampel_img_size or array.shape[1] <= sampel_img_size:
 			return cls.padd(array, sampel_img_size)
 
-		return cls.croparray(array, *cls.chop_coordinates(0, 0, array.shape[1], array.shape[0], sampel_img_size, random.randint(0, 4000013)))
+		xmin, ymin, xmax, ymax = cls.chop_coordinates(0, 0, array.shape[1], array.shape[0], sampel_img_size, random.randint(0, 4000013))
 
-	def rand_crop(self, height, width):
-		if width >= self.shape[1] or height >= self.shape[0]:
-			return self.padd(width, height)
-
-		rand_gen = lambda r: random.randint(0, r)
-
-		while True:
-			rand_y = rand_gen(self.shape[0])
-			rand_x = rand_gen(self.shape[1])
-			offset_y = sign() * width + rand_y
-			offset_x = sign() * height + rand_x
-			if (0 <= offset_y < self.shape[0]) and (0 <= offset_x < self.shape[1]):
-				break
-
-
-
-
-		x = (rand_x, offset_x)
-		y = (rand_y, offset_y)
-
-
-		return self.croparray(min(x), min(y), max(x), max(y))
-
-
-
-
+		return cls.croparray(array, xmin, ymin, xmax, ymax)
 

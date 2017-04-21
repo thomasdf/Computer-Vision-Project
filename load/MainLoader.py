@@ -99,7 +99,7 @@ class MainLoader:
 			image = Image.open(filepath).convert(mode='L')
 
 			# image = image.crop((int(xmin), int(ymin), int(xmax), int(ymax)))
-			arr2d = np.array(image)
+			arr2d = np.asarray(image)
 			arr2d = arr2d[int(ymin):int(ymax), int(xmin):int(xmax)]
 
 
@@ -113,8 +113,8 @@ class MainLoader:
 			# arr2d = Img.static_normalized2d(arr2d)
 
 			for j in range(num_samples):
-				arr2d = Img.randcrop(arr2d, self.size)
-				batch.append(arr2d.ravel())
+				arr_rand = Img.randcrop(arr2d, self.size)
+				batch.append(arr_rand.ravel())
 				labels.append(label)
 
 		stacked_batch = np.vstack(batch)
