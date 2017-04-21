@@ -105,17 +105,16 @@ def neural_network_model(x, is_training: bool = True):
 	return output
 
 
-def train_neural_network(x, cost: function = tf.nn.softmax_cross_entropy_with_logits,
-                         optimizer: function = tf.train.GradientDescentOptimizer):
+def train_neural_network(x):
 	print("start neural network training")
 
 	nn_output = neural_network_model(x)
 
 	# cost function
-	cost_func = tf.reduce_mean(cost(logits=nn_output, labels=y))
+	cost_func = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=nn_output, labels=y))
 
 	# optimizer function
-	optimizer_func = optimizer.minimize(cost_func)
+	optimizer_func = tf.train.GradientDescentOptimizer().minimize(cost_func)
 
 	# init variables and session
 	init = tf.global_variables_initializer()
