@@ -28,6 +28,7 @@ num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size)
 # training things
 num_epochs = 1
 dropout_rate = 0.2
+lr = 0.00001
 
 # classifier things
 size = 28  # (X * X size)
@@ -114,7 +115,7 @@ def train_neural_network(x):
 	cost_func = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=nn_output, labels=y))
 
 	# optimizer function
-	optimizer_func = tf.train.GradientDescentOptimizer().minimize(cost_func)
+	optimizer_func = tf.train.GradientDescentOptimizer(lr).minimize(cost_func)
 
 	# init variables and session
 	init = tf.global_variables_initializer()
