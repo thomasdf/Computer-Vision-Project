@@ -188,13 +188,12 @@ def train_neural_network(x):
 				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: batch_x, y: batch_y})
 				t_train_end  = time.time()
 				epoch_cost += c
-
 				if(batch_num % 100 == 0):
 					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(epoch_cost), "\tprevious batch training time",
 					      "{:10.2f}".format(t_train_end - t_train_start), '\tprevious batch loading time',
 					      "{:10.2f}".format(t_load_end - t_load_start))
 			print("Epoch", str(epoch), " of ", str(num_epochs), " loss: ", str(epoch_cost))
-			saver.save(sess, "../savedmodels/Alex/epoch" + str(epoch) + "acc" + str(epoch_acc / num_batches))
+			saver.save(sess, "../savedmodels/Alex/epoch" + str(epoch) + "acc")
 
 			correct = tf.equal(tf.argmax(nn_output, 1), tf.argmax(y, 1))
 			accuracy = tf.reduce_mean(tf.cast(correct, "float"))
