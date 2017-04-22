@@ -178,7 +178,7 @@ def train_neural_network(x):
 	with tf.Session() as sess:
 		sess.run(init)
 		saver = tf.train.Saver()
-
+		t_total = time.time()
 		for epoch in range(num_epochs):
 			epoch_cost = 0
 			t_batch_start = time.time()
@@ -199,8 +199,7 @@ def train_neural_network(x):
 				# if (batch_num % 500 == 0 and batch_num != 0):
 				# 	saver.save(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "batch" + str(batch_num) + "cost" + "{:0.2f}".format(c) + ".checkpoint")
 
-			print("Epoch", str(epoch), " of ", str(num_epochs), " cost: ", str(epoch_cost))
-
+			print("Epoch", str(epoch), " of ", str(num_epochs), " cost: ", str(epoch_cost), 'Time: ', time.time() - t_batch_start)
 			correct = tf.equal(tf.argmax(nn_output, 1), tf.argmax(y, 1))
 			accuracy = tf.reduce_mean(tf.cast(correct, "float"))
 
@@ -214,7 +213,7 @@ def train_neural_network(x):
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
 				print("Calculating accuracy. ", "{:10.2f}".format((n / num_test_batches) * 100), "% complete. Time:", (time.time() - t0))
 			acc = epoch_acc / num_train_batches
-			print("Epoch Accuracy: ", acc)
+			print("Epoch Accuracy: ", acc, 'Epoch time:', time.time() - t_batch_start, 'Total time:', time.time() - t_total)
 			accs.append(acc)
 			epochs.append(epoch)
 
@@ -225,7 +224,7 @@ def train_neural_network(x):
 				plt.legend()
 				plt.show()
 			loader.reset_index()
-
+		print('Total time spent', time.time() - t_total)
 		plt.figure()
 		gen = plt.plot(epochs, accs, label='accuracy vs epoch')
 		plt.legend()
