@@ -1,5 +1,6 @@
 import os
 import random
+import time
 
 import numpy as np
 from PIL import Image
@@ -117,6 +118,10 @@ class MainLoader:
 				batch.append(arr1d)
 				labels.append(Img.to_onehot(label))
 
+		# for image in batch:
+		# 	assert image.shape[0] == 224*224
+
+
 		stacked_batch = np.vstack(batch)
 		stacked_labels = np.vstack(labels)
 
@@ -152,10 +157,10 @@ class MainLoader:
 
 
 
-	def next_batch(self, batch_size: int, imagerate: float = 0.05, is_training:bool = True):
+	def next_batch(self, batch_size: int, imagesperexample: int = 1, is_training:bool = True):
 
 		if is_training:
-			return self.__get_next_batch(batch_size, int(np.ceil(batch_size * imagerate)), is_training=True)
+			return self.__get_next_batch(batch_size, imagesperexample, is_training=True)
 			# return self.__get_batch(batch_size, self.data, self.trainindexes, True)
 		else:
 			return self.__get_next_batch(batch_size, batch_size, is_training=False)
@@ -163,9 +168,11 @@ class MainLoader:
 
 
 # print('Allah!')
-# n = MainLoader(15, 0.1)
+# n = MainLoader(224, 0.1)
 # print('Niqab!')
+# t = time.time()
 # n.next_batch(1000)
+# print(time.time() - t)
 # print('batchy macbatchface')
 # n.next_batch(1000, False)
 # print('hei')
