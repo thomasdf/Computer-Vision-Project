@@ -20,14 +20,14 @@ print(device_lib.list_local_devices())
 ###########################################################################################
 
 # data loader
-test_set_size = 0.05  # fraction of dataset used as test-set
+test_set_size = 0.01  # fraction of dataset used as test-set
 loader = MainLoader(224, test_set_size)
 print("loader initialized")
 
 # data things
 batch_size = 50
 num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size))
-
+num_test_batches = int(np.ceil((len(loader.data) * (test_set_size)) / batch_size))
 # training things
 num_epochs = 10
 dropout_rate = 0.2
@@ -187,8 +187,8 @@ def train_neural_network(x):
 				epoch_cost += c
 				t1 = time.time()
 				if(batch_num % 100 == 0):
-					print("Batch ", batch_num, " of ", num_batches, " complete. Cost ", epoch_cost, "previous batch training time",
-					      "{:10.2f}".format(t1 - t0), ".", 'previous batch loading time',
+					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(epoch_cost),". \tprevious batch training time",
+					      "{:10.2f}".format(t1 - t0), '\tprevious batch loading time',
 					      "{:10.2f}".format(time.time() - t_batch))
 				t0 = t1
 			print("Epoch", str(epoch), " of ", str(num_epochs), " loss: ", str(epoch_cost))
@@ -200,7 +200,7 @@ def train_neural_network(x):
 			print("Epoch complete. Calculating accuracy...")
 
 			epoch_acc = 0
-			for n in range(num_batches):
+			for n in range(num_test_batches):
 				test_batch_x, test_batch_y = loader.next_batch(batch_size, is_training=False)
 				#test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
