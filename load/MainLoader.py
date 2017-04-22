@@ -69,11 +69,7 @@ class MainLoader:
 		result = {}
 		if indexes == None:
 			indexes = self.testindexes
-		# seeds = hash_split(1, len(indexes))
-		# path = base_dir + '/load/seeds.txt'
-		# with open(path, 'w') as file:
-		# 	for i in seeds:
-		# 		file.write(str(i) + ',')
+
 
 		for i, index in enumerate(indexes):
 			xmin, ymin, xmax, ymax, filepath, label = self.data[index]
@@ -82,35 +78,20 @@ class MainLoader:
 		return result
 
 	def __get_training_batch(self, batch_size: int, num_images: int):
-		data = self.data
-		indexes = self.trainindexes
 		num_samples = batch_size // num_images
-
 		batch = []
 		labels = []
 		start = self.index_training
 		self.index_training += num_images
 		end = self.index_training
 
-		for i, index in enumerate(indexes[start:end]):
-			xmin, ymin, xmax, ymax, filepath, label = data[index]
-
-			# image = Img.open(filepath, mode='L')
+		for i, index in enumerate(self.trainindexes[start:end]):
+			xmin, ymin, xmax, ymax, filepath, label = self.data[index]
 			image = Image.open(filepath).convert(mode='L')
-
-			# image = image.crop((int(xmin), int(ymin), int(xmax), int(ymax)))
 			arr2d = np.asarray(image)
 			arr2d = arr2d[int(ymin):int(ymax), int(xmin):int(xmax)]
-
-
 			arr2d.astype(np.float32)
 			arr2d = np.multiply(arr2d, 1.0 / 255.0)
-
-			# image.convert('L')  # Convert to grayscale
-			# img_arr = image.normalized2d()
-
-			# arr2d = image.rand_crop(self.size, self.size)
-			# arr2d = Img.static_normalized2d(arr2d)
 
 			for j in range(num_samples):
 				arr_rand = Img.randcrop(arr2d, self.size)
@@ -124,9 +105,7 @@ class MainLoader:
 		return stacked_batch, stacked_labels
 
 	def __get_test_batch(self, batch_size: int, data: [], indexes: [int], is_training: bool):
-		# batch = np.ndarray(num, dtype=np.ndarray)
 		batch = []
-		# labels = np.ndarray(num, dtype=np.ndarray)
 		labels = []
 		start = self.index_test
 		self.index_test += batch_size
@@ -141,9 +120,8 @@ class MainLoader:
 			image.set_label(label)
 
 			arr2d = image.normalized2d()
-			xmin, ymin, xmax, ymax = self.test_chops[index]
-			arr2d = arr2d[ymin:ymax, xmin:xmax]
-			arr1d = arr2d.ravel()
+			arr_crop = Img.testcrop(arr2d, self.size, *self.test_chops[index])
+			arr1d = arr_crop.ravel()
 
 			batch.append(arr1d)
 			labels.append(image.one_hot)
@@ -152,6 +130,7 @@ class MainLoader:
 		stacked_labels = np.vstack(labels)
 
 		return stacked_batch, stacked_labels
+
 
 
 
