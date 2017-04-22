@@ -19,13 +19,15 @@ print(device_lib.list_local_devices())
 ###                                 THINGS                                              ###
 ###########################################################################################
 
+base_dir = os.path.dirname(os.path.dirname(__file__))
+
 # data loader
 test_set_size = 0.01  # fraction of dataset used as test-set
 loader = MainLoader(224, test_set_size)
 print("loader initialized")
 
 # data things
-batch_size = 50
+batch_size = 20
 num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size))
 num_test_batches = int(np.ceil((len(loader.data) * (test_set_size)) / batch_size))
 # training things
@@ -189,11 +191,14 @@ def train_neural_network(x):
 				t_train_end  = time.time()
 				epoch_cost += c
 				if(batch_num % 100 == 0):
-					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(epoch_cost), "\tprevious batch training time",
+					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(c), "\tprevious batch training time",
 					      "{:10.2f}".format(t_train_end - t_train_start), '\tprevious batch loading time',
 					      "{:10.2f}".format(t_load_end - t_load_start))
-			print("Epoch", str(epoch), " of ", str(num_epochs), " loss: ", str(epoch_cost))
-			# saver.save(sess, "../savedmodels/Alex/epoch" + str(epoch) + "acc")
+				#save each x batches
+				# if (batch_num % 500 == 0 and batch_num != 0):
+				# 	saver.save(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "batch" + str(batch_num) + "cost" + "{:0.2f}".format(c) + ".checkpoint")
+
+			print("Epoch", str(epoch), " of ", str(num_epochs), " cost: ", str(epoch_cost))
 
 			correct = tf.equal(tf.argmax(nn_output, 1), tf.argmax(y, 1))
 			accuracy = tf.reduce_mean(tf.cast(correct, "float"))
@@ -213,7 +218,7 @@ def train_neural_network(x):
 			epochs.append(epoch)
 
 			if epoch % 5 == 0:
-				# saver.save(sess, "../savedmodels/Alex/epoch" + epoch + "acc" + "{:10.2f}".format(epoch_acc/num_batches) + ".checkpoint")
+				saver.save(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:10.2f}".format(acc) + ".checkpoint")
 				plt.figure()
 				gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
 				plt.legend()
