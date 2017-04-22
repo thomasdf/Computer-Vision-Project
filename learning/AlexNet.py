@@ -177,7 +177,7 @@ def train_neural_network(x):
 		for epoch in range(num_epochs):
 			epoch_cost = 0
 			t0 = time.time()
-			for batch_num in range(num_batches):
+			for batch_num in range(0):
 				t_batch = time.time()
 				batch_x, batch_y = loader.next_batch(batch_size)  # load data from mnist dataset
 	#			batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from mnist dataset
@@ -198,7 +198,7 @@ def train_neural_network(x):
 
 			epoch_acc = 0
 			for _ in range(num_batches):
-				test_batch_x, test_batch_y = loader.next_batch(batch_size, False)
+				test_batch_x, test_batch_y = loader.next_batch(batch_size, is_training=False)
 				#test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
 				print("Calculating accuracy. ", "{:10.2f}".format((_ / num_batches) * 100), "% complete.")
