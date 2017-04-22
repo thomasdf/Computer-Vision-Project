@@ -124,8 +124,8 @@ class Img:
 
 	@classmethod
 	def padd(cls, array:np.ndarray, sample_img_size):
-		widths = int(np.ceil(sample_img_size / array.shape[1]))
-		heights = int(np.ceil(sample_img_size / array.shape[0]))
+		widths = int(np.ceil(sample_img_size / array.shape[0]))
+		heights = int(np.ceil(sample_img_size / array.shape[1]))
 		wide_arr = np.concatenate([array for _ in range(widths)], axis=0)
 		full_arr = np.concatenate([wide_arr for _ in range(heights)], axis=1)
 
