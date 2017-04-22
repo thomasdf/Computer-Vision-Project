@@ -9,19 +9,19 @@ from load.MainLoader import MainLoader
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 print(device_lib.list_local_devices())
-size = 64
-loader = MainLoader(size,0.05)
+size = 32
+loader = MainLoader(size ,0.05)
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 n_classes = 4
 # batch size to use when loading mnist data (number of images)
-batch_size = 150
-num_batches = 20
+batch_size = 1
+num_batches = 10
 
 keep_rate = 0.8
 keep_prob = tf.placeholder(tf.float32)
 
-x = tf.placeholder("float", [None, 4096])  # 28x28 px images flattened
+x = tf.placeholder("float", [None, size*size])  # 28x28 px images flattened
 y = tf.placeholder("float")
 
 
@@ -37,7 +37,7 @@ def neural_network_model(x):
 	# define variables for layers (that is: allocate memory, create a structure)
 	weights = {"conv1": tf.Variable(tf.random_normal([5, 5, 1, 64])),
 	           "conv2": tf.Variable(tf.random_normal([5, 5, 64, 128])),
-	           "fc": tf.Variable(tf.random_normal([16 * 16 * 128, 4096])),
+	           "fc": tf.Variable(tf.random_normal([size * size * 128, 4096])),
 	           "out": tf.Variable(tf.random_normal([4096, n_classes]))
 	           }
 
@@ -111,12 +111,12 @@ def run_neural_network(batch):
 		# results = sess.run(nn_output, feed_dict={x: batch})
 	return results
 
-#train_neural_network(x)
-xs, ys = loader.next_batch(2, 2, False)
+train_neural_network(x)
+#xs, ys = loader.next_batch(2, 2, False)
 
-for img in xs:
-	image = Img.from_array1d(img, [64,64])
-	image.denormalize()
-	image.show()
-res = run_neural_network(xs)
-print(res)
+#for img in xs:
+#	image = Img.from_array1d(img, [64,64])
+#	image.denormalize()
+#	image.show()
+#res = run_neural_network(xs)
+#print(res)
