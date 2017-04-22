@@ -77,15 +77,24 @@ class MainLoader:
 
 		return result
 
-	def __get_training_batch(self, batch_size: int, num_images: int):
+	def __get_training_batch(self, batch_size: int, num_images: int, is_training: bool = True):
 		num_samples = batch_size // num_images
+		if is_training:
+			indexes = self.trainindexes
+			cropfunc = Img.randcrop
+			croparg = lambda x: ()
+		else:
+			indexes = self.testindexes
+			cropfunc = Img.testcrop
+			croparg = lambda x: self.test_chops[x]
+
 		batch = []
 		labels = []
 		start = self.index_training
 		self.index_training += num_images
 		end = self.index_training
 
-		for i, index in enumerate(self.trainindexes[start:end]):
+		for i, index in enumerate(indexes[start:end]):
 			xmin, ymin, xmax, ymax, filepath, label = self.data[index]
 			image = Image.open(filepath).convert(mode='L')
 			arr2d = np.asarray(image)
@@ -94,8 +103,8 @@ class MainLoader:
 			arr2d = np.multiply(arr2d, 1.0 / 255.0)
 
 			for j in range(num_samples):
-				arr_rand = Img.randcrop(arr2d, self.size)
-				arr1d = arr_rand.ravel()
+				arr_crop = cropfunc(arr2d, self.size, croparg(index))
+				arr1d = arr_crop.ravel()
 				batch.append(arr1d)
 				labels.append(Img.to_onehot(label))
 
@@ -120,7 +129,7 @@ class MainLoader:
 			image.set_label(label)
 
 			arr2d = image.normalized2d()
-			arr_crop = Img.testcrop(arr2d, self.size, *self.test_chops[index])
+			arr_crop = Img.testcrop(arr2d, self.size, self.test_chops[index])
 			arr1d = arr_crop.ravel()
 
 			batch.append(arr1d)
@@ -140,6 +149,7 @@ class MainLoader:
 			return self.__get_training_batch(batch_size, int(np.ceil(batch_size * imagerate)))
 			# return self.__get_batch(batch_size, self.data, self.trainindexes, True)
 		else:
+			# return self.__get_training_batch(batch_size, 1, is_training=False)
 			return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
 
 

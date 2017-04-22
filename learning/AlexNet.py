@@ -179,7 +179,7 @@ def train_neural_network(x):
 		for epoch in range(num_epochs):
 			epoch_cost = 0
 			t_batch_start = time.time()
-			for batch_num in range(num_batches):
+			for batch_num in range(0):
 				t_load_start = time.time()
 				batch_x, batch_y = loader.next_batch(batch_size)  # load data from dataset
 				t_load_end = time.time()
@@ -193,7 +193,7 @@ def train_neural_network(x):
 					      "{:10.2f}".format(t_train_end - t_train_start), '\tprevious batch loading time',
 					      "{:10.2f}".format(t_load_end - t_load_start))
 			print("Epoch", str(epoch), " of ", str(num_epochs), " loss: ", str(epoch_cost))
-			saver.save(sess, "../savedmodels/Alex/epoch" + str(epoch) + "acc")
+			# saver.save(sess, "../savedmodels/Alex/epoch" + str(epoch) + "acc")
 
 			correct = tf.equal(tf.argmax(nn_output, 1), tf.argmax(y, 1))
 			accuracy = tf.reduce_mean(tf.cast(correct, "float"))
@@ -213,16 +213,16 @@ def train_neural_network(x):
 			epochs.append(epoch)
 
 			if epoch % 5 == 0:
-				saver.save(sess, "../savedmodels/Alex/epoch" + epoch + "acc" + "{:10.2f}".format(epoch_acc/num_batches) + ".checkpoint")
+				# saver.save(sess, "../savedmodels/Alex/epoch" + epoch + "acc" + "{:10.2f}".format(epoch_acc/num_batches) + ".checkpoint")
 				plt.figure()
 				gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
 				plt.legend()
-				plt.show()
+				# plt.show()
 
 		plt.figure()
 		gen = plt.plot(epochs, accs, label='accuracy vs epoch')
 		plt.legend()
-		plt.show()
+		# plt.show()
 
 
 
