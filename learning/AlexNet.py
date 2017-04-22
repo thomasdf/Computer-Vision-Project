@@ -6,16 +6,18 @@ import os
 import matplotlib.pyplot as plt
 
 import time
-from tensorflow.python.client import device_lib
-from load.MainLoader import labels
 
-from tensorflow.examples.tutorials.mnist import input_data
+# from multiprocessing import freeze_support
+# from tensorflow.python.client import device_lib
+# from load.MainLoader import labels
 
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
+from async.LoadBatch import next_batch_pipe
+from load import labels
 from load.MainLoader import MainLoader
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-print(device_lib.list_local_devices())
+# print(device_lib.list_local_devices())
 
 ###########################################################################################
 ###                                 THINGS                                              ###
@@ -163,13 +165,12 @@ def neural_network_model(x, is_training: bool = True):
 	return output
 
 
-# , batch_x: list, batch_y: list
-def next_batch_async(loader: MainLoader, batch_size: int, images_used: int, is_training: bool, batch_x: list, batch_y: list):
-	x, y = loader.next_batch(batch_size, images_used, is_training)
-	batch_x[0] = x
-	batch_y[0] = y
-batch_x_async = [0]
-batch_y_async = [0]
+# def next_batch_pipe(loader: MainLoader, batch_size: int, images_used: int, is_training: bool, conn):
+# 	x, y = loader.next_batch(batch_size, images_used, is_training)
+# 	conn.send((x, y))
+# 	conn.close()
+
+
 def train_neural_network(x):
 	accs = []
 	epochs = []
@@ -191,13 +192,17 @@ def train_neural_network(x):
 	# train_process = multiprocessing.Process(target=next_batch_async, args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async ))
 
 
-	import threading
-	train_process = threading.Thread(target=next_batch_async, args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
+	# train_thread = threading.Thread(target=next_batch_async, args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
+
+	# train_thread.start()
+
+	parent_conn, child_conn = multiprocessing.Pipe()
+	train_process = multiprocessing.Process(target=next_batch_pipe, args=(loader, batch_size, image_load_size, True, child_conn))
 
 	train_process.start()
+	# xxyy = parent_conn.recv()
+	#
 	# train_process.join()
-
-
 
 
 
@@ -216,15 +221,20 @@ def train_neural_network(x):
 	#			batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from dataset
 
 				#todo: join
+				# train_thread.join()
+				xx, yy = parent_conn.recv()
+
 				train_process.join()
 
 				#todo: copy ... or not
 
-				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: batch_x_async[0], y: batch_y_async[0]})
+				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: xx, y: yy})
 
 				#todo: start
-				train_process = threading.Thread(target=next_batch_async,
-				                                 args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
+				# train_thread = threading.Thread(target=next_batch_async,
+				#                                  args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
+				#
+				train_process = multiprocessing.Process(target=next_batch_pipe, args=(loader, batch_size, image_load_size, True, child_conn))
 
 				train_process.start()
 
@@ -278,5 +288,8 @@ def run_nn(x, epoch, acc):
 		saver.restore(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
 			acc) + ".checkpoint")
 
-train_neural_network(x)
+
+if __name__ == '__main__':
+	# freeze_support()
+	train_neural_network(x)
 #run_nn(x, 0, 0.01)
