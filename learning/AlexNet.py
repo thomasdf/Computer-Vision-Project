@@ -28,8 +28,9 @@ print("loader initialized")
 
 # data things
 batch_size = 20
+test_size = len(loader.data) * (test_set_size)
 num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size))
-num_test_batches = int(np.floor((len(loader.data) * (test_set_size)) / batch_size))
+num_test_batches = int(np.floor((test_size) / batch_size))
 # training things
 num_epochs = 10
 dropout_rate = 0.2
@@ -171,7 +172,6 @@ def train_neural_network(x):
 
 	# optimizer function
 	optimizer_func = tf.train.GradientDescentOptimizer(lr).minimize(cost_func)
-
 	# init variables and session
 	init = tf.global_variables_initializer()
 	with tf.Session() as sess:
