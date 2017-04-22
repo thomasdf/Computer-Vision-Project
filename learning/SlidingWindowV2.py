@@ -24,8 +24,6 @@ def slidy_mac_slideface(array:np.ndarray, stride: int, size: int, classifier: ca
 
 			result_arr =  classifier(arr.ravel())
 
-
-
 			classified_img.append((x, y, result_arr))
 
 	# Image.fromarray(a).show()

@@ -99,6 +99,8 @@ class MainLoader:
 		batch = []
 		labels = []
 
+		if len(indexes) <= end:
+			end = len(indexes)
 
 
 		for i, index in enumerate(indexes[start:end]):

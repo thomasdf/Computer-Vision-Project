@@ -162,4 +162,10 @@ class Img:
 		if array.shape[0] < sampel_img_size or array.shape[1] < sampel_img_size:
 			return cls.padd(array, sampel_img_size)
 
-		return cls.croparray(array, *chop_coordinates)
+		xmin, ymin, xmax, ymax = chop_coordinates
+
+		x = xmax - xmin
+		y = ymax - ymin
+
+		return cls.croparray(array, 0, 0, x, y)
+
