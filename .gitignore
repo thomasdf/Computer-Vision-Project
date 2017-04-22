@@ -57,3 +57,5 @@ tools/__pycache__/
 
 *.pyc
 *.pyo
+
+savedmodels/Alex/
