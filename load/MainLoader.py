@@ -115,7 +115,7 @@ class MainLoader:
 			arr2d = np.multiply(arr2d, 1.0 / 255.0)
 
 			for j in range(num_samples):
-				arr_crop = cropfunc(arr2d, self.size, croparg(index))
+				arr_crop = Img.cropfunc(arr2d, self.size, croparg(index), is_training)
 				arr1d = arr_crop.ravel()
 				batch.append(arr1d)
 				labels.append(Img.to_onehot(label))

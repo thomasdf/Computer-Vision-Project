@@ -149,11 +149,14 @@ class Img:
 		return x, y, x + sample_img_size, y + sample_img_size
 
 	@classmethod
-	def randcrop(cls, array: np.ndarray, sampel_img_size: int, _: [int]):
+	def randcrop(cls, array: np.ndarray, sampel_img_size: int):
 		if array.shape[0] < sampel_img_size or array.shape[1] < sampel_img_size:
 			return cls.padd(array, sampel_img_size)
 
 		xmin, ymin, xmax, ymax = cls.chop_coordinates(0, 0, array.shape[1], array.shape[0], sampel_img_size, random.randint(0, 4000013))
+
+		if xmax - xmax <= sampel_img_size or ymax - ymin <= sampel_img_size:
+			return cls.padd(array, sampel_img_size)
 
 		return cls.croparray(array, xmin, ymin, xmax, ymax)
 
@@ -164,8 +167,23 @@ class Img:
 
 		xmin, ymin, xmax, ymax = chop_coordinates
 
+		if xmax - xmax <= sampel_img_size or ymax - ymin <= sampel_img_size:
+			return cls.padd(array, sampel_img_size)
+
 		x = xmax - xmin
 		y = ymax - ymin
 
 		return cls.croparray(array, 0, 0, x, y)
 
+	@classmethod
+	def cropfunc(cls, array: np.ndarray, sampel_img_size: int, chop_coordinates: [int], is_training: bool):
+
+
+		if is_training:
+
+			arr = cls.randcrop(array, sampel_img_size)
+
+		else:
+			arr = cls.testcrop(array, sampel_img_size, chop_coordinates)
+
+		return arr[0:sampel_img_size, 0:sampel_img_size]

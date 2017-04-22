@@ -12,7 +12,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
 from load.MainLoader import MainLoader
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 print(device_lib.list_local_devices())
 
 ###########################################################################################
@@ -22,15 +22,16 @@ print(device_lib.list_local_devices())
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 # data loader
-test_set_size = 0.01  # fraction of dataset used as test-set
-loader = MainLoader(224, test_set_size)
+test_set_rate = 0.01  # fraction of dataset used as test-set
+loader = MainLoader(224, test_set_rate)
 print("loader initialized")
 
 # data things
-batch_size = 20
-test_size = len(loader.data) * (test_set_size)
-num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size))
-num_test_batches = int(np.floor((test_size) / batch_size))
+batch_size = 10
+image_load_size = batch_size // 2
+test_size = len(loader.data) * (test_set_rate)
+num_train_batches = int(np.ceil(len(loader.trainindexes) / image_load_size))
+num_test_batches =  int(np.ceil(len(loader.testindexes) / image_load_size))
 # training things
 num_epochs = 10
 dropout_rate = 0.2
@@ -181,9 +182,9 @@ def train_neural_network(x):
 		for epoch in range(num_epochs):
 			epoch_cost = 0
 			t_batch_start = time.time()
-			for batch_num in range(num_batches):
+			for batch_num in range(num_train_batches):
 				t_load_start = time.time()
-				batch_x, batch_y = loader.next_batch(batch_size)  # load data from dataset
+				batch_x, batch_y = loader.next_batch(batch_size, image_load_size, is_training=True)  # load data from dataset
 				t_load_end = time.time()
 				t_train_start = time.time()
 	#			batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from dataset
@@ -191,7 +192,7 @@ def train_neural_network(x):
 				t_train_end  = time.time()
 				epoch_cost += c
 				if(batch_num % 100 == 0):
-					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.6f}".format(c), "\tprevious batch training time",
+					print("Batch ", batch_num, " of ", num_train_batches, "\tCost ", "{:10.6f}".format(c), "\tprevious batch training time",
 					      "{:10.2f}".format(t_train_end - t_train_start), '\tprevious batch loading time',
 					      "{:10.2f}".format(t_load_end - t_load_start))
 				#save each x batches
@@ -212,7 +213,7 @@ def train_neural_network(x):
 				#test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
 				print("Calculating accuracy. ", "{:10.2f}".format((n / num_test_batches) * 100), "% complete. Time:", (time.time() - t0))
-			acc = epoch_acc / num_batches
+			acc = epoch_acc / num_train_batches
 			print("Epoch Accuracy: ", acc)
 			accs.append(acc)
 			epochs.append(epoch)
