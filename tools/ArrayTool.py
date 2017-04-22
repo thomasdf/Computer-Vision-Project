@@ -22,27 +22,29 @@ def draw2d(array2d: np.ndarray, xmin: int, ymin: int, xmax: int, ymax: int, colo
 
 
 def shade2d(classified_img, size: int, intensity: int = 1):
-    treshold = .50
+    treshold = .90
     object = [(0,0,0,0), (0,255,255,intensity), (255,0,255, intensity), (255,255,0,intensity), (0,255,0, intensity), (0,0,0,0)]
-    # nothing = (0,0,0,0)
-    # car = (0,255,255,intensity)
-    # ped = (255,0,255, intensity)
-    # sign = (255,255,0,intensity)
-    # truck = (0,255,0, intensity)
-    # none = (0,0,0,0)
+    # 1. nothing = (0,0,0,0)
+    # 2. car = (0,255,255,intensity)
+    # 3. ped = (255,0,255, intensity)
+    # 4. sign = (255,255,0,intensity)
+    # 5. truck = (0,255,0, intensity)
+    rect = Image.new('RGBA', (size, size))
 
     im = Image.open(random_pic_path)
+    rect = Image.new('RGBA', (size, size))
+    pdraw = ImageDraw.Draw(rect)
     for i in classified_img:
-        rect = Image.new('RGBA', (size,size))
-        pdraw = ImageDraw.Draw(rect)
+        offset = (i[0],i[1])
         object_index = 0
         if (i[2][i[2].argmax()] >= treshold):
-            object_index =  i[2].argmax() + 1
-        pdraw.rectangle([i[0], i[1], i[0] + size, i[1] + size],
-                        fill=object[object_index], outline=(0, 0, 0, 0))
-        im.paste(im, mask=rect)
+            object_index = i[2].argmax() + 1
+        pdraw.rectangle([0, 0, size, size],
+                        fill=object[object_index], outline=object[object_index])
+        im.paste(rect,offset, mask=rect)
+    return np.array(im)
 
-    im.show()
+
 
 
 
@@ -50,7 +52,7 @@ def shade2d(classified_img, size: int, intensity: int = 1):
 img = Image.open(random_pic_path)
 arr = np.asarray(img)
 
-shade2d(slidy_mac_slideface(arr, 25, 60, classic), 60,255)
+print(shade2d(slidy_mac_slideface(arr, 60, 60, classic), 60,50))
 
 # img = Image.open(random_pic_path)
 # arr = np.asarray(img)
@@ -63,3 +65,4 @@ shade2d(slidy_mac_slideface(arr, 25, 60, classic), 60,255)
 # 			a[y][x] = color
 # 		elif (y == ymin or y == ymax) and (xmin <= x <= xmax):
 # 			a[y][x] = color
+
