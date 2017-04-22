@@ -59,3 +59,5 @@ tools/__pycache__/
 *.pyo
 
 savedmodels/Alex/
+
+savedmodels/CNN/
