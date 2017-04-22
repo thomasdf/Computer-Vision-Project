@@ -12,9 +12,10 @@ def next_batch_mp(loader, batch_size: int, images_used: int, is_training: bool, 
 	x, y = loader.next_batch(batch_size, images_used, is_training)
 
 
-def next_batch_queue(loader, batch_size: int, images_used: int, is_training: bool, batch_queue):
-	xy = loader.next_batch(batch_size, images_used, is_training)
+def next_batch_queue(loader, batch_size: int, images_used: int, is_training: bool, batch_queue_x, batch_queue_y):
+	x, y = loader.next_batch(batch_size, images_used, is_training)
 
-	batch_queue.put(xy)
+	batch_queue_x.put(x)
+	batch_queue_y.put(y)
 
 	return

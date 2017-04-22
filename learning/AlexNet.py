@@ -199,14 +199,15 @@ def train_neural_network(x):
 	# batch_x_shared = multiprocessing.Array(ctypes.c_double, batch_size)
 	# batch_y_shared = multiprocessing.Array(ctypes.c_double, batch_size)
 
-	batch_queue = multiprocessing.Queue()
+	batch_queue_x = multiprocessing.Queue()
+	batch_queue_y = multiprocessing.Queue()
 
 	# parent_conn, child_conn = multiprocessing.Pipe()
-	train_process = multiprocessing.Process(target=next_batch_queue, args=(loader, batch_size, image_load_size, True, batch_queue))
+	train_process = multiprocessing.Process(target=next_batch_queue, args=(loader, batch_size, image_load_size, True, batch_queue_x, batch_queue_y))
 
 	train_process.start()
+
 	# xxyy = parent_conn.recv()
-	#
 	# train_process.join()
 
 
@@ -229,7 +230,8 @@ def train_neural_network(x):
 				# train_thread.join()
 
 				train_process.join()
-				xx, yy = batch_queue.get()
+				xx = batch_queue_x.get()
+				yy = batch_queue_y.get()
 
 				#todo: copy ... or not
 
@@ -239,7 +241,7 @@ def train_neural_network(x):
 				# train_thread = threading.Thread(target=next_batch_async,
 				#                                  args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
 				#
-				train_process = multiprocessing.Process(target=next_batch_queue, args=(loader, batch_size, image_load_size, True, batch_queue))
+				train_process = multiprocessing.Process(target=next_batch_queue, args=(loader, batch_size, image_load_size, True, batch_queue_x))
 
 				train_process.start()
 
