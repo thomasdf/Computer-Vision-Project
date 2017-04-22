@@ -177,7 +177,7 @@ def train_neural_network(x):
 		for epoch in range(num_epochs):
 			epoch_cost = 0
 			t0 = time.time()
-			for batch_num in range(0):
+			for batch_num in range(num_batches):
 				t_batch = time.time()
 				batch_x, batch_y = loader.next_batch(batch_size)  # load data from mnist dataset
 	#			batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from mnist dataset
