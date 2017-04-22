@@ -22,7 +22,7 @@ def slidy_mac_slideface(array:np.ndarray, stride: int, size: int, classifier: ca
 
 			# a = draw2d(a, x, y, (x + size), (y + size))
 
-			result_arr =  classifier(arr.ravel())
+			result_arr = classifier(arr.ravel())
 
 			classified_img.append((x, y, result_arr))
 

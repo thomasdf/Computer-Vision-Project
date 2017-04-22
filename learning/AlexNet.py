@@ -31,7 +31,7 @@ batch_size = 10
 image_load_size = batch_size // 2
 test_size = len(loader.data) * (test_set_rate)
 num_train_batches = int(np.ceil(len(loader.trainindexes) / image_load_size))
-num_test_batches =  int(np.ceil(len(loader.testindexes) / image_load_size))
+num_test_batches =  int(np.ceil(len(loader.testindexes) / batch_size))
 # training things
 num_epochs = 10
 dropout_rate = 0.2

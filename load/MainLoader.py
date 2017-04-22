@@ -7,7 +7,6 @@ from PIL import Image
 
 from image.Image import Img
 
-
 # load_images()
 from tools.SplitSet import hash_split
 
@@ -81,7 +80,6 @@ class MainLoader:
 	def __get_next_batch(self, batch_size: int, num_images:int, is_training: bool = True):
 		if is_training:
 			indexes = self.trainindexes
-			cropfunc = Img.randcrop
 			croparg = lambda _: ()
 			start = self.index_training
 			self.index_training += num_images
@@ -90,7 +88,6 @@ class MainLoader:
 		else:
 			num_images = batch_size
 			indexes = self.testindexes
-			cropfunc = Img.testcrop
 			croparg = lambda index: self.test_chops[index]
 			start = self.index_test
 			self.index_test += num_images
