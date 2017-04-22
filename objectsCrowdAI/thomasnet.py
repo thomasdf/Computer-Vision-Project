@@ -1,4 +1,6 @@
+import numpy
 import tensorflow as tf
+from PIL import Image
 from tensorflow.examples.tutorials.mnist import input_data
 import os
 from tensorflow.python.client import device_lib
@@ -111,12 +113,15 @@ def run_neural_network(batch):
 		# results = sess.run(nn_output, feed_dict={x: batch})
 	return results
 
-#train_neural_network(x)
+# train_neural_network(x)
 xs, ys = loader.next_batch(2, 2, False)
 
-for img in xs:
-	image = Img.from_array1d(img, [64,64])
-	image.denormalize()
-	image.show()
+for arr1d in xs:
+	arr2d = arr1d.reshape((64,64))
+
+	arr2d.astype(numpy.float32)
+	arr = numpy.multiply(arr2d, 255.0)
+	Image.fromarray(arr).show()
+
 res = run_neural_network(xs)
 print(res)
