@@ -13,7 +13,7 @@ import time
 # from load.MainLoader import labels
 
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
-from async.LoadBatch import next_batch_queue
+from async.LoadBatch import next_batch_queue, next_batch_queue_2
 from load import labels
 from load.MainLoader import MainLoader
 
@@ -201,9 +201,9 @@ def train_neural_network(x):
 
 	batch_queue_x = multiprocessing.Queue()
 	batch_queue_y = multiprocessing.Queue()
-
+	lock = multiprocessing.Lock()
 	# parent_conn, child_conn = multiprocessing.Pipe()
-	train_process = multiprocessing.Process(target=next_batch_queue, args=(loader, batch_size, image_load_size, True, batch_queue_x, batch_queue_y))
+	train_process = multiprocessing.Process(target=next_batch_queue_2, args=(loader, batch_size, image_load_size, True, batch_queue_x, batch_queue_y, lock))
 
 	train_process.start()
 
@@ -221,21 +221,22 @@ def train_neural_network(x):
 			t_batch_start = time.time()
 			for batch_num in range(num_train_batches):
 				t_load_start = time.time()
-				# batch_x, batch_y = loader.next_batch(batch_size, image_load_size, is_training=True)  # load data from dataset
 				t_load_end = time.time()
 				t_train_start = time.time()
-	#			batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from dataset
 
 				#todo: join
-				# train_thread.join()
 
 				train_process.join()
-				xx = batch_queue_x.get()
-				yy = batch_queue_y.get()
+				xl, yl = [],[]
+				while not batch_queue_x.empty():
+					xl.append(batch_queue_x.get())
+					yl.append(batch_queue_y.get())
 
+				stacked_batch = np.vstack(xl)
+				stacked_labels = np.vstack(yl)
 				#todo: copy ... or not
 
-				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: xx, y: yy})
+				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: stacked_batch, y: stacked_labels})
 
 				#todo: start
 				# train_thread = threading.Thread(target=next_batch_async,

@@ -168,8 +168,64 @@ class MainLoader:
 
 		return stacked_batch, stacked_labels
 
+	def __get_test_batch_queued(self, batch_size: int, data: [], indexes: [int], is_training: bool, batch_queue, label_queue):
 
+		start = self.index_test
+		self.index_test += batch_size
+		end = self.index_test
 
+		for i, index in enumerate(indexes[start:end]):
+			xmin, ymin, xmax, ymax, filepath, label = data[index]
+
+			image = Img.open(filepath)
+			image.crop(int(xmin), int(ymin), int(xmax), int(ymax))  # crop object
+			image.convert('L')  # Convert to grayscale
+			image.set_label(label)
+
+			arr2d = image.normalized2d()
+			arr_crop = Img.testcrop(arr2d, self.size, self.test_chops[index])
+			arr1d = arr_crop.ravel()
+			batch_queue.put(arr1d)
+			label_queue.put(image.one_hot)
+
+	def __get_next_batch_queued(self, batch_size: int, num_images: int, is_training: bool, batch_queue, label_queue, lock):
+		if is_training:
+			indexes = self.trainindexes
+			croparg = lambda _: ()
+			start = self.index_training
+			self.index_training += num_images
+			end = self.index_training
+
+		else:
+			num_images = batch_size
+			indexes = self.testindexes
+			croparg = lambda index: self.test_chops[index]
+			start = self.index_test
+			self.index_test += num_images
+			end = self.index_test
+
+		num_samples = batch_size // num_images
+
+		assert len(indexes) > start
+
+		if len(indexes) <= end:
+			end = len(indexes)
+
+		for i, index in enumerate(indexes[start:end]):
+			xmin, ymin, xmax, ymax, filepath, label = self.data[index]
+			image = Image.open(filepath).convert(mode='L')
+			arr2d = np.asarray(image)
+			arr2d = arr2d[int(ymin):int(ymax), int(xmin):int(xmax)]
+			arr2d.astype(np.float32)
+			arr2d = np.multiply(arr2d, 1.0 / 255.0)
+
+			for j in range(num_samples):
+				arr_crop = Img.cropfunc(arr2d, self.size, croparg(index), is_training)
+				arr1d = arr_crop.ravel()
+				lock.acquire()
+				batch_queue.put(arr1d)
+				label_queue.put(image.one_hot)
+				lock.release()
 
 	def next_batch(self, batch_size: int, images_used: int = 1, is_training:bool = True):
 
@@ -181,11 +237,8 @@ class MainLoader:
 			# return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
 
 
-	def next_batch_async(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y):
-		X, Y = self.next_batch(batch_size, images_used, is_training)
-
-		batch_x.value = X
-		batch_y.value = Y
+	def next_batch_async(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y, lock):
+		self.__get_next_batch_queued(batch_size, images_used, is_training, batch_x, batch_y, lock)
 
 
 
