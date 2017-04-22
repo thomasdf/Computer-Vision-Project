@@ -99,6 +99,8 @@ class MainLoader:
 		batch = []
 		labels = []
 
+		assert len(indexes) > start
+
 		if len(indexes) <= end:
 			end = len(indexes)
 
