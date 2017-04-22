@@ -149,7 +149,7 @@ class Img:
 		return x, y, x + sample_img_size, y + sample_img_size
 
 	@classmethod
-	def randcrop(cls, array: np.ndarray, sampel_img_size: int):
+	def randcrop(cls, array: np.ndarray, sampel_img_size: int, _: [int]):
 		if array.shape[0] < sampel_img_size or array.shape[1] < sampel_img_size:
 			return cls.padd(array, sampel_img_size)
 
@@ -158,8 +158,8 @@ class Img:
 		return cls.croparray(array, xmin, ymin, xmax, ymax)
 
 	@classmethod
-	def testcrop(cls, array: np.ndarray, sampel_img_size: int, xmin: int, ymin: int, xmax: int, ymax: int):
+	def testcrop(cls, array: np.ndarray, sampel_img_size: int, chop_coordinates: [int]):
 		if array.shape[0] < sampel_img_size or array.shape[1] < sampel_img_size:
 			return cls.padd(array, sampel_img_size)
 
-		return cls.croparray(array, xmin, ymin, xmax, ymax)
+		return cls.croparray(array, *chop_coordinates)

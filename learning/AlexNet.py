@@ -181,7 +181,7 @@ def train_neural_network(x):
 		for epoch in range(num_epochs):
 			epoch_cost = 0
 			t_batch_start = time.time()
-			for batch_num in range(num_batches):
+			for batch_num in range(0):
 				t_load_start = time.time()
 				batch_x, batch_y = loader.next_batch(batch_size)  # load data from dataset
 				t_load_end = time.time()
@@ -222,12 +222,12 @@ def train_neural_network(x):
 				plt.figure()
 				gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
 				plt.legend()
-				plt.show()
+				# plt.show()
 
 		plt.figure()
 		gen = plt.plot(epochs, accs, label='accuracy vs epoch')
 		plt.legend()
-		plt.show()
+		# plt.show()
 
 
 
