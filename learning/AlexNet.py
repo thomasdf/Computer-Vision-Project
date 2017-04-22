@@ -202,10 +202,11 @@ def train_neural_network(x):
 
 			epoch_acc = 0
 			for n in range(num_test_batches):
+				t0 = time.time()
 				test_batch_x, test_batch_y = loader.next_batch(batch_size, is_training=False)
 				#test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
-				print("Calculating accuracy. ", "{:10.2f}".format((n / num_batches) * 100), "% complete.")
+				print("Calculating accuracy. ", "{:10.2f}".format((n / num_batches) * 100), "% complete. Time:", (time.time() - t0))
 			acc = epoch_acc / num_batches
 			print("Epoch Accuracy: ", acc)
 			accs.append(acc)
@@ -219,7 +220,7 @@ def train_neural_network(x):
 				plt.show()
 
 		plt.figure()
-		gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
+		gen = plt.plot(epochs, accs, label='accuracy vs epoch')
 		plt.legend()
 		plt.show()
 
