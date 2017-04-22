@@ -188,6 +188,14 @@ def train_neural_network(x):
 				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: batch_x, y: batch_y})
 				t_train_end  = time.time()
 				epoch_cost += c
+				t1 = time.time()
+				if(batch_num % 100 == 0):
+					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(epoch_cost),". \tprevious batch training time",
+					      "{:10.2f}".format(t1 - t0), '\tprevious batch loading time',
+					      "{:10.2f}".format(time.time() - t_batch))
+				t0 = t1
+			print("Epoch", str(epoch), " of ", str(num_epochs), " loss: ", str(epoch_cost))
+			saver.save(sess, "../savedmodels/Alex/epoch" + str(epoch) + "acc" + str(epoch_acc / num_batches))
 
 				if(batch_num % 100 == 0):
 					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(epoch_cost), "\tprevious batch training time",
@@ -206,8 +214,11 @@ def train_neural_network(x):
 				test_batch_x, test_batch_y = loader.next_batch(batch_size, is_training=False)
 				#test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
-				print("Calculating accuracy. ", "{:10.2f}".format((n / num_batches) * 100), "% complete.")
-			print("Epoch Accuracy: ", epoch_acc / num_batches)
+				print("Calculating accuracy. ", "{:10.2f}".format((n / num_batches) * 100), "% complete. Time:", (time.time() - t0))
+			acc = epoch_acc / num_batches
+			print("Epoch Accuracy: ", acc)
+			accs.append(acc)
+			epochs.append(epoch)
 
 			if epoch % 5 == 0:
 				saver.save(sess, "../savedmodels/Alex/epoch" + epoch + "acc" + "{:10.2f}".format(epoch_acc/num_batches) + ".checkpoint")
@@ -218,7 +229,7 @@ def train_neural_network(x):
 
 		plt.figure()
 		gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
-		plt.legend()
+		plt.legend
 		plt.show()
 
 
