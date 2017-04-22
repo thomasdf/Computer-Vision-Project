@@ -1,5 +1,6 @@
 import multiprocessing
 
+import functools
 import numpy as np
 import tensorflow as tf
 import os
@@ -13,7 +14,7 @@ import time
 # from load.MainLoader import labels
 
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
-from async.LoadBatch import next_batch_queue, next_batch_queue_2
+from async.LoadBatch import next_batch_queue, next_batch_queue_2, next_batch_queue_3
 from load import labels
 from load.MainLoader import MainLoader
 
@@ -202,15 +203,30 @@ def train_neural_network(x):
 	batch_queue_x = multiprocessing.Queue()
 	batch_queue_y = multiprocessing.Queue()
 	lock = multiprocessing.Lock()
-	# parent_conn, child_conn = multiprocessing.Pipe()
-	train_process = multiprocessing.Process(target=next_batch_queue_2, args=(loader, batch_size, image_load_size, True, batch_queue_x, batch_queue_y, lock))
 
-	train_process.start()
+	pool = multiprocessing.Pool()
+
+	# parent_conn, child_conn = multiprocessing.Pipe()
+
+	pool.map(next_batch_queue_3, (loader, batch_size, image_load_size, True, batch_queue_x, batch_queue_y, lock) )
+	pool.close()
+	pool.join()
+	xl, yl = [], []
+
+	while not batch_queue_x.empty():
+		xl.append(batch_queue_x.get())
+		yl.append(batch_queue_y.get())
+
+	stacked_batch = np.vstack(xl)
+	stacked_labels = np.vstack(yl)
+
 
 	# xxyy = parent_conn.recv()
 	# train_process.join()
+	train_process = multiprocessing.Process(target=next_batch_queue_2,
+	                                        args=(loader, batch_size, image_load_size, True, batch_queue_x, batch_queue_y, lock))
 
-
+	train_process.start()
 
 	with tf.Session() as sess:
 		sess.run(init)

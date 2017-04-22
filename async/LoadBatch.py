@@ -24,3 +24,7 @@ def next_batch_queue(loader, batch_size: int, images_used: int, is_training: boo
 def next_batch_queue_2(loader, batch_size: int, images_used: int, is_training: bool, batch_queue_x, batch_queue_y, lock):
 	loader.next_batch_async(batch_size, images_used, is_training, batch_queue_x, batch_queue_y, lock)
 
+
+def next_batch_queue_3(args):
+	loader, batch_size, images_used, is_training, batch_queue_x, batch_queue_y, lock = args
+	loader.next_batch_async(batch_size, images_used, is_training, batch_queue_x, batch_queue_y, lock)
