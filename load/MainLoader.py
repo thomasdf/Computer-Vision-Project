@@ -166,6 +166,14 @@ class MainLoader:
 			# return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
 
 
+	def next_batch_async(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y):
+		X, Y = self.next_batch(batch_size, images_used, is_training)
+
+		batch_x.value = X
+		batch_y.value = Y
+
+
+
 # print('Allah!')
 # n = MainLoader(224, 0.1)
 # print('Niqab!')

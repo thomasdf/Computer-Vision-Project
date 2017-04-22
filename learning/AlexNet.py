@@ -1,3 +1,5 @@
+import multiprocessing
+
 import numpy as np
 import tensorflow as tf
 import os
@@ -161,6 +163,13 @@ def neural_network_model(x, is_training: bool = True):
 	return output
 
 
+# , batch_x: list, batch_y: list
+def next_batch_async(loader: MainLoader, batch_size: int, images_used: int, is_training: bool, batch_x: list, batch_y: list):
+	x, y = loader.next_batch(batch_size, images_used, is_training)
+	batch_x[0] = x
+	batch_y[0] = y
+batch_x_async = [0]
+batch_y_async = [0]
 def train_neural_network(x):
 	accs = []
 	epochs = []
@@ -175,6 +184,23 @@ def train_neural_network(x):
 	optimizer_func = tf.train.GradientDescentOptimizer(lr).minimize(cost_func)
 	# init variables and session
 	init = tf.global_variables_initializer()
+
+	# batch_x_async = multiprocessing.Array(np.ndarray)
+	# batch_y_async = multiprocessing.Value(np.ndarray)
+	#
+	# train_process = multiprocessing.Process(target=next_batch_async, args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async ))
+
+
+	import threading
+	train_process = threading.Thread(target=next_batch_async, args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
+
+	train_process.start()
+	# train_process.join()
+
+
+
+
+
 	with tf.Session() as sess:
 		sess.run(init)
 		saver = tf.train.Saver()
@@ -184,11 +210,24 @@ def train_neural_network(x):
 			t_batch_start = time.time()
 			for batch_num in range(num_train_batches):
 				t_load_start = time.time()
-				batch_x, batch_y = loader.next_batch(batch_size, image_load_size, is_training=True)  # load data from dataset
+				# batch_x, batch_y = loader.next_batch(batch_size, image_load_size, is_training=True)  # load data from dataset
 				t_load_end = time.time()
 				t_train_start = time.time()
 	#			batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from dataset
-				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: batch_x, y: batch_y})
+
+				#todo: join
+				train_process.join()
+
+				#todo: copy ... or not
+
+				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: batch_x_async[0], y: batch_y_async[0]})
+
+				#todo: start
+				train_process = threading.Thread(target=next_batch_async,
+				                                 args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
+
+				train_process.start()
+
 				t_train_end  = time.time()
 				epoch_cost += c
 				if(batch_num % 100 == 0):
@@ -229,7 +268,6 @@ def train_neural_network(x):
 		gen = plt.plot(epochs, accs, label='accuracy vs epoch')
 		plt.legend()
 		plt.show()
-
 
 
 
