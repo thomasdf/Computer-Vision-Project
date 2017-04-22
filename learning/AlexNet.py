@@ -178,19 +178,21 @@ def train_neural_network(x):
 
 		for epoch in range(num_epochs):
 			epoch_cost = 0
-			t0 = time.time()
+			t_batch_start = time.time()
 			for batch_num in range(num_batches):
-				t_batch = time.time()
+				t_load_start = time.time()
 				batch_x, batch_y = loader.next_batch(batch_size)  # load data from dataset
+				t_load_end = time.time()
+				t_train_start = time.time()
 	#			batch_x, batch_y = mnist.train.next_batch(batch_size)  # load data from dataset
 				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: batch_x, y: batch_y})
+				t_train_end  = time.time()
 				epoch_cost += c
-				t1 = time.time()
+
 				if(batch_num % 100 == 0):
-					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(epoch_cost),". \tprevious batch training time",
-					      "{:10.2f}".format(t1 - t0), '\tprevious batch loading time',
-					      "{:10.2f}".format(time.time() - t_batch))
-				t0 = t1
+					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(epoch_cost), "\tprevious batch training time",
+					      "{:10.2f}".format(t_train_end - t_train_start), '\tprevious batch loading time',
+					      "{:10.2f}".format(t_load_end - t_load_start))
 			print("Epoch", str(epoch), " of ", str(num_epochs), " loss: ", str(epoch_cost))
 			saver.save(sess, "../savedmodels/Alex/epoch" + str(epoch) + "acc" + str(epoch_acc / num_batches))
 
@@ -219,7 +221,7 @@ def train_neural_network(x):
 
 		plt.figure()
 		gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
-		plt.legend
+		plt.legend()
 		plt.show()
 
 
