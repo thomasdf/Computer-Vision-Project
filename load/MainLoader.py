@@ -77,22 +77,29 @@ class MainLoader:
 
 		return result
 
-	def __get_training_batch(self, batch_size: int, num_images: int, is_training: bool = True):
-		num_samples = batch_size // num_images
+	def __get_next_batch(self, batch_size: int, num_images:int, is_training: bool = True):
 		if is_training:
 			indexes = self.trainindexes
 			cropfunc = Img.randcrop
-			croparg = lambda x: ()
+			croparg = lambda _: ()
+			start = self.index_training
+			self.index_training += num_images
+			end = self.index_training
+
 		else:
+			num_images = batch_size
 			indexes = self.testindexes
 			cropfunc = Img.testcrop
-			croparg = lambda x: self.test_chops[x]
+			croparg = lambda index: self.test_chops[index]
+			start = self.index_test
+			self.index_test += num_images
+			end = self.index_test
 
+		num_samples = batch_size // num_images
 		batch = []
 		labels = []
-		start = self.index_training
-		self.index_training += num_images
-		end = self.index_training
+
+
 
 		for i, index in enumerate(indexes[start:end]):
 			xmin, ymin, xmax, ymax, filepath, label = self.data[index]
@@ -146,11 +153,11 @@ class MainLoader:
 	def next_batch(self, batch_size: int, imagerate: float = 0.05, is_training:bool = True):
 
 		if is_training:
-			return self.__get_training_batch(batch_size, int(np.ceil(batch_size * imagerate)))
+			return self.__get_next_batch(batch_size, int(np.ceil(batch_size * imagerate)), is_training=True)
 			# return self.__get_batch(batch_size, self.data, self.trainindexes, True)
 		else:
-			# return self.__get_training_batch(batch_size, 1, is_training=False)
-			return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
+			return self.__get_next_batch(batch_size, batch_size, is_training=False)
+			# return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
 
 
 # print('Allah!')

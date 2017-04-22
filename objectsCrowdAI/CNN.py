@@ -145,7 +145,7 @@ def train_neural_network(x):
 
 			epoch_acc = 0
 			for _ in range(num_batches):
-				test_batch_x, test_batch_y = loader.next_batch(batch_size, False)
+				test_batch_x, test_batch_y = loader.next_batch(batch_size, is_training=False)
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
 				print("Calculating accuracy. ", "{:10.2f}".format((_ / num_batches) * 100), "% complete.")
 			print("Epoch Accuracy: ", epoch_acc / num_batches)
