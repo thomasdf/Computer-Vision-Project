@@ -12,7 +12,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
 from load.MainLoader import MainLoader
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 print(device_lib.list_local_devices())
 
 ###########################################################################################
@@ -29,11 +29,11 @@ print("loader initialized")
 # data things
 batch_size = 20
 num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size))
-num_test_batches = int(np.ceil((len(loader.data) * (test_set_size)) / batch_size))
+num_test_batches = int(np.floor((len(loader.data) * (test_set_size)) / batch_size))
 # training things
 num_epochs = 10
 dropout_rate = 0.2
-lr = 0.00001
+lr = 0.001
 
 # classifier things
 size = 224 # (X * X size)
@@ -181,7 +181,7 @@ def train_neural_network(x):
 		for epoch in range(num_epochs):
 			epoch_cost = 0
 			t_batch_start = time.time()
-			for batch_num in range(0):
+			for batch_num in range(num_batches):
 				t_load_start = time.time()
 				batch_x, batch_y = loader.next_batch(batch_size)  # load data from dataset
 				t_load_end = time.time()
@@ -191,7 +191,7 @@ def train_neural_network(x):
 				t_train_end  = time.time()
 				epoch_cost += c
 				if(batch_num % 100 == 0):
-					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.2f}".format(c), "\tprevious batch training time",
+					print("Batch ", batch_num, " of ", num_batches, "\tCost ", "{:10.6f}".format(c), "\tprevious batch training time",
 					      "{:10.2f}".format(t_train_end - t_train_start), '\tprevious batch loading time',
 					      "{:10.2f}".format(t_load_end - t_load_start))
 				#save each x batches
@@ -211,29 +211,34 @@ def train_neural_network(x):
 				test_batch_x, test_batch_y = loader.next_batch(batch_size, is_training=False)
 				#test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
 				epoch_acc += accuracy.eval({x: test_batch_x, y: test_batch_y})
-				print("Calculating accuracy. ", "{:10.2f}".format((n / num_batches) * 100), "% complete. Time:", (time.time() - t0))
+				print("Calculating accuracy. ", "{:10.2f}".format((n / num_test_batches) * 100), "% complete. Time:", (time.time() - t0))
 			acc = epoch_acc / num_batches
 			print("Epoch Accuracy: ", acc)
 			accs.append(acc)
 			epochs.append(epoch)
 
 			if epoch % 5 == 0:
-				saver.save(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:10.2f}".format(acc) + ".checkpoint")
+				saver.save(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint")
 				plt.figure()
 				gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
 				plt.legend()
-				# plt.show()
+				plt.show()
+			loader.reset_index()
 
 		plt.figure()
 		gen = plt.plot(epochs, accs, label='accuracy vs epoch')
 		plt.legend()
-		# plt.show()
+		plt.show()
 
 
 
-def run_nn(x):
+
+def run_nn(x, epoch, acc):
 	"""Runs a pre-trained network. x is a flattened image of the same size as the model has been trained"""
-
-
+	with tf.Session() as sess:
+		saver = tf.train.import_meta_graph(base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint.meta")
+		saver.restore(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
+			acc) + ".checkpoint")
 
 train_neural_network(x)
+#run_nn(x, 0, 0.01)
