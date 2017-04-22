@@ -1,4 +1,6 @@
+import numpy
 import tensorflow as tf
+from PIL import Image
 from tensorflow.examples.tutorials.mnist import input_data
 import os
 from tensorflow.python.client import device_lib
