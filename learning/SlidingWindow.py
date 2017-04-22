@@ -4,7 +4,7 @@ from image.Image import Img
 from image import Image
 
 
-def slidingwindowclassify(image: Img, stride: int, height: int, width: int, classifier: function):
+def slidingwindowclassify(image: Img, stride: int, height: int, width: int, classifier: callable):
 	"""Slides a classifier over an image. That is: runs classifier for each height*width frame, stride apart"""
 	image.normalize()
 	imgwidth = image.shape[1]
@@ -28,6 +28,6 @@ def slidingwindowclassify(image: Img, stride: int, height: int, width: int, clas
 		ymax = ymax + stride
 	return result
 
-def classify(image: Img, classifier: function):
+def classify(image: Img, classifier: callable):
 	"""runs the classifier on the image"""
 	return classifier(image.arr1d)
