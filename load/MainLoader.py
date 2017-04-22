@@ -158,7 +158,7 @@ class MainLoader:
 	def next_batch(self, batch_size: int, is_training:bool = True):
 
 		if is_training:
-			return self.__get_training_batch(batch_size, batch_size//10)
+			return self.__get_training_batch(batch_size, batch_size//100)
 			# return self.__get_batch(batch_size, self.data, self.trainindexes, True)
 		else:
 			return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
