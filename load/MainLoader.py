@@ -116,7 +116,7 @@ class MainLoader:
 				arr_rand = Img.randcrop(arr2d, self.size)
 				arr1d = arr_rand.ravel()
 				batch.append(arr1d)
-				labels.append(label)
+				labels.append(Img.to_onehot(label))
 
 		stacked_batch = np.vstack(batch)
 		stacked_labels = np.vstack(labels)
