@@ -215,7 +215,7 @@ def train_neural_network(x):
 				saver.save(sess, "../savedmodels/Alex/epoch" + epoch + "acc" + "{:10.2f}".format(epoch_acc/num_batches) + ".checkpoint")
 				plt.figure()
 				gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
-				plt.legend
+				plt.legend()
 				plt.show()
 
 		plt.figure()
