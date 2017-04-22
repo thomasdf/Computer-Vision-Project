@@ -159,10 +159,10 @@ class MainLoader:
 
 
 
-	def next_batch(self, batch_size: int, imagesperexample: int = 1, is_training:bool = True):
+	def next_batch(self, batch_size: int, images_used: int = 1, is_training:bool = True):
 
 		if is_training:
-			return self.__get_next_batch(batch_size, imagesperexample, is_training=True)
+			return self.__get_next_batch(batch_size, images_used, is_training=True)
 			# return self.__get_batch(batch_size, self.data, self.trainindexes, True)
 		else:
 			return self.__get_next_batch(batch_size, batch_size, is_training=False)
