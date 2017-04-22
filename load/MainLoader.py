@@ -73,7 +73,8 @@ class MainLoader:
 
 		for i, index in enumerate(indexes):
 			xmin, ymin, xmax, ymax, filepath, label = self.data[index]
-			result[index] = Img.chop_coordinates(int(xmin), int(ymin), int(xmax), int(ymax), self.size, index)
+			x0, y0, x1, y1 = Img.chop_coordinates(int(xmin), int(ymin), int(xmax), int(ymax), self.size, index)
+			result[index] = x0, y0, x1, y1
 
 		return result
 

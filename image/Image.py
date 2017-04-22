@@ -161,5 +161,7 @@ class Img:
 	def testcrop(cls, array: np.ndarray, sampel_img_size: int, xmin: int, ymin: int, xmax: int, ymax: int):
 		if array.shape[0] < sampel_img_size or array.shape[1] < sampel_img_size:
 			return cls.padd(array, sampel_img_size)
+		if xmax - xmin < sampel_img_size or ymax - ymin < sampel_img_size:
+			return cls.padd(array, sampel_img_size)
 
 		return cls.croparray(array, xmin, ymin, xmax, ymax)
