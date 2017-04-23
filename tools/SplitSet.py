@@ -1,7 +1,4 @@
-import hashlib
 from tools import holybook
-
-import sys
 
 _hash = lambda text, start, end, length: hash(text[start:end].encode('utf-8')) % length
 
