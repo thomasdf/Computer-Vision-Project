@@ -126,13 +126,17 @@ class DeeperNet():
 		return logits
 	def init_loader(self):
 		self.loader = MainLoader(self.size, self.test_set_rate)
+		self.test_size = len(self.loader.data) * (self.test_set_rate)
+		self.num_train_batches = int(
+			(np.ceil(len(self.loader.trainindexes) / self.image_load_size)) * self.dataset_fraction)
+		self.num_test_batches = max(
+			int((np.ceil(len(self.loader.testindexes) / self.batch_size)) * self.dataset_fraction), 1)
 
 	####################################################################
 	###                               Training                       ###
 	####################################################################
 
 	def train_neural_network(self):
-		self.init()
 		self.init_loader()
 		x = self.x
 		accs = []
@@ -276,9 +280,5 @@ class DeeperNet():
 		self.x = tf.placeholder("float", [None, self.size * self.size])
 		self.y = tf.placeholder("float")
 
-		self.test_size = len(self.loader.data) * (self.test_set_rate)
-		self.num_train_batches = int(
-			(np.ceil(len(self.loader.trainindexes) / self.image_load_size)) * self.dataset_fraction)
-		self.num_test_batches = max(
-			int((np.ceil(len(self.loader.testindexes) / self.batch_size)) * self.dataset_fraction), 1)
+
 		# training things
