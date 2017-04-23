@@ -124,12 +124,15 @@ class DeeperNet():
 		)
 
 		return logits
+	def init_loader(self):
+		self.loader = MainLoader(self.size, self.test_set_rate)
 
 	####################################################################
 	###                               Training                       ###
 	####################################################################
 
 	def train_neural_network(self):
+		self.init_loader()
 		x = self.x
 		accs = []
 		epochs = []
@@ -220,21 +223,33 @@ class DeeperNet():
 
 		logits = self.neural_network_model(self.x, False)
 		chachpoint_path = self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + '.checkpoint'
-		saver = tf.train.Saver()
+		# saver = tf.train.Saver()
 		with tf.Session() as sess:
-			# saver = tf.train.import_meta_graph(chachpoint_path + '.meta')
+			saver = tf.train.import_meta_graph(chachpoint_path + '.meta')
 			saver.restore(sess=sess, save_path=chachpoint_path)
-			all_vars = tf.get_collection('vars')
-			for v in all_vars:
-				sess.run(v)
-			# init = tf.global_variables_initializer()
-			# sess.run(init)
-			res = sess.run(logits, feed_dict={self.x: batch})
+			# all_vars = tf.get_collection('vars')
+			# for v in all_vars:
+			# 	sess.run(v)
+			init = tf.global_variables_initializer()
+			sess.run(init)
+			# res = sess.run(logits, feed_dict={self.x: batch})
+			res = sess.run(tf.nn.softmax(logits), feed_dict={self.x: batch})
 		return res
 
 	####################################################################
 	###                               class-things                   ###
 	####################################################################
+
+	def init(self):
+		self.test_size = len(self.loader.data) * (self.test_set_rate)
+		self.num_train_batches = int(
+			(np.ceil(len(self.loader.trainindexes) / self.image_load_size)) * self.dataset_fraction)
+		self.num_test_batches = max(
+			int((np.ceil(len(self.loader.testindexes) / self.batch_size)) * self.dataset_fraction), 1)
+		# training things
+
+
+
 
 	def __init__(self):
 		# print(device_lib.list_local_devices())
@@ -254,9 +269,9 @@ class DeeperNet():
 		self.dataset_fraction = 0.02  # fraction of whole dataset used
 
 		# data loader
-		self.loader = MainLoader(self.size, self.test_set_rate)
-		print("loader initialized")
+		# print("loader initialized")
 
+		# data things
 		# classifier things
 		self.n_classes = len(labels)
 		self.flat_batch_size = self.size * self.size * self.batch_size
@@ -264,15 +279,7 @@ class DeeperNet():
 		self.batch_shape = (self.batch_size, self.size * self.size)
 		self.labels_shape = (self.batch_size, self.n_classes)
 
-		# data things
-
-		self.test_size = len(self.loader.data) * (self.test_set_rate)
-		self.num_train_batches = int(
-			(np.ceil(len(self.loader.trainindexes) / self.image_load_size)) * self.dataset_fraction)
-		self.num_test_batches = max(
-			int((np.ceil(len(self.loader.testindexes) / self.batch_size)) * self.dataset_fraction), 1)
-		# training things
-
 		# tensorflow things
 		self.x = tf.placeholder("float", [None, self.size * self.size])
 		self.y = tf.placeholder("float")
+

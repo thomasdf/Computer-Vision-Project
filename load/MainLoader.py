@@ -40,11 +40,15 @@ class MainLoader:
 		sign_data = load_csv(sign_path)  # Filename, Width, Height, Roi_X1, Roi_Y1, Roi_X2, Roi_Y2, ClassId
 
 		data = []
-
+		carrs_tresh = 62567 // 3
+		carrs_num = 0
 		for xmin, ymin, xmax, ymax, filename, label, url in car_data:
 			if xmin == xmax or ymin == ymax:
 				continue
-
+			if label == 'Car':
+				carrs_num += 1
+				if carrs_num > carrs_tresh:
+					continue
 			data.append((xmin, ymin, xmax, ymax, (car_img_path + filename), labels.index(label)))
 
 		for filename, w, h, xmin, ymin, xmax, ymax, label in sign_data:
@@ -52,6 +56,7 @@ class MainLoader:
 				continue
 			data.append((xmin, ymin, xmax, ymax, (sign_img_path + filename), 0))
 
+		len(data)
 		return data  # xmin, ymin, xmax, ymax, filepath, label
 
 	def split_data(self, testrate: float, data_length: int):
