@@ -6,12 +6,11 @@ import matplotlib.pyplot as plt
 import time
 
 import os
-print('bolle')
 
 ###########################################################################################
 ###                                 TF/NN                                               ###
 ###########################################################################################
-from load import labels, base_dir
+from load import labels
 from load.LoadProcess import LoadProcess
 from load.MainLoader import MainLoader
 
@@ -218,7 +217,7 @@ class AlexNet():
 				epochs.append(epoch)
 
 				if epoch % 5 == 0:
-					saver.save(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint")
+					saver.save(sess, self.base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint")
 					plt.figure()
 					gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
 					plt.legend()
@@ -236,8 +235,8 @@ class AlexNet():
 	def run_nn(self, x, epoch, acc):
 		"""Runs a pre-trained network. x is a flattened image of the same size as the model has been trained"""
 		with tf.Session() as sess:
-			saver = tf.train.import_meta_graph(base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint.meta")
-			saver.restore(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
+			saver = tf.train.import_meta_graph(self.base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint.meta")
+			saver.restore(sess, self.base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
 				acc) + ".checkpoint")
 
 	def __init__(self):
@@ -251,7 +250,7 @@ class AlexNet():
 		###                                 THINGS                                              ###
 		###########################################################################################
 
-		base_dir = os.path.dirname(os.path.dirname(__file__))
+		self.base_dir = os.path.dirname(os.path.dirname(__file__))
 
 		# data loader
 		self.test_set_rate = 0.01  # fraction of dataset used as test-set
@@ -259,8 +258,8 @@ class AlexNet():
 		print("loader initialized")
 
 		# data things
-		self.batch_size = 10
-		self.image_load_size = self.batch_size // 2
+		self.batch_size = 100
+		self.image_load_size = 2
 		self.test_size = len(self.loader.data) * (self.test_set_rate)
 		self.num_train_batches = int(np.ceil(len(self.loader.trainindexes) / self.image_load_size))
 		self.num_test_batches = int(np.ceil(len(self.loader.testindexes) / self.batch_size))

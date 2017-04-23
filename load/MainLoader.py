@@ -174,7 +174,7 @@ class MainLoader:
 			batch_queue.put(arr1d)
 			label_queue.put(image.one_hot)
 
-	def __get_next_batch_unstacked(self, batch_size: int, num_images: int, is_training: bool = True):
+	def get_next_batch_unstacked(self, batch_size: int, num_images: int, is_training: bool = True):
 		if is_training:
 			indexes = self.trainindexes
 			croparg = lambda _: ()
@@ -238,7 +238,7 @@ class MainLoader:
 		pass
 
 	def next_batch_async_arr(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y,):
-		x, y = self.__get_next_batch_unstacked(batch_size, images_used, is_training)
+		x, y = self.get_next_batch_unstacked(batch_size, images_used, is_training)
 		xx = np.concatenate(x)
 		yy = np.concatenate(y)
 
