@@ -188,7 +188,7 @@ class MainLoader:
 			batch_queue.put(arr1d)
 			label_queue.put(image.one_hot)
 
-	def __get_next_batch_queued(self, batch_size: int, num_images: int, is_training: bool, batch_queue, label_queue, lock):
+	def __get_next_batch_unstacked(self, batch_size: int, num_images: int, is_training: bool = True):
 		if is_training:
 			indexes = self.trainindexes
 			croparg = lambda _: ()
@@ -205,6 +205,8 @@ class MainLoader:
 			end = self.index_test
 
 		num_samples = batch_size // num_images
+		batch = []
+		labels = []
 
 		assert len(indexes) > start
 
@@ -222,10 +224,18 @@ class MainLoader:
 			for j in range(num_samples):
 				arr_crop = Img.cropfunc(arr2d, self.size, croparg(index), is_training)
 				arr1d = arr_crop.ravel()
-				lock.acquire()
-				batch_queue.put(arr1d)
-				label_queue.put(image.one_hot)
-				lock.release()
+				batch.append(arr1d)
+				labels.append(Img.to_onehot(label))
+
+		# for image in batch:
+		# 	assert image.shape[0] == 224*224
+
+
+		# stacked_batch = np.vstack(batch)
+		# stacked_labels = np.vstack(labels)
+
+		return batch, labels
+
 
 	def next_batch(self, batch_size: int, images_used: int = 1, is_training:bool = True):
 
@@ -238,9 +248,19 @@ class MainLoader:
 
 
 	def next_batch_async(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y, lock):
-		self.__get_next_batch_queued(batch_size, images_used, is_training, batch_x, batch_y, lock)
+		# self.__get_next_batch_queued(batch_size, images_used, is_training, batch_x, batch_y, lock)
+		pass
 
+	def next_batch_async_arr(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y,):
+		x, y = self.__get_next_batch_unstacked(batch_size, images_used, is_training)
+		xx = np.concatenate(x)
+		yy = np.concatenate(y)
 
+		xarr = np.frombuffer(batch_x.get_obj())
+		yarr = np.frombuffer(batch_y.get_obj())
+
+		np.copyto(xarr, xx)
+		np.copyto(yarr, yy)
 
 # print('Allah!')
 # n = MainLoader(224, 0.1)

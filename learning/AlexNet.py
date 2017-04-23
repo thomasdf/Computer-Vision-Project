@@ -14,7 +14,9 @@ import time
 # from load.MainLoader import labels
 
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
-from async.LoadBatch import next_batch_queue, next_batch_queue_2, next_batch_queue_3
+from PIL import Image
+
+from async.LoadBatch import next_batch_queue, next_batch_queue_2, next_batch_queue_3, next_batch_arr
 from load import labels
 from load.MainLoader import MainLoader
 
@@ -46,6 +48,11 @@ lr = 0.001
 # classifier things
 size = 224 # (X * X size)
 n_classes = len(labels)
+flat_batch_size = size* size * batch_size
+flat_labels_size = batch_size*n_classes
+batch_shape = (batch_size, size*size)
+labels_shape = (batch_size, n_classes)
+
 
 # tensorflow things
 x = tf.placeholder("float", [None, 224*224])
@@ -188,45 +195,29 @@ def train_neural_network(x):
 	# init variables and session
 	init = tf.global_variables_initializer()
 
-	# batch_x_async = multiprocessing.Array(np.ndarray)
-	# batch_y_async = multiprocessing.Value(np.ndarray)
-	#
-	# train_process = multiprocessing.Process(target=next_batch_async, args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async ))
 
 
-	# train_thread = threading.Thread(target=next_batch_async, args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
+	x_arr_batch = multiprocessing.Array(ctypes.c_double, flat_batch_size)
+	y_arr_batch = multiprocessing.Array(ctypes.c_double, flat_labels_size)
 
-	# train_thread.start()
-	# batch_x_shared = multiprocessing.Array(ctypes.c_double, batch_size)
-	# batch_y_shared = multiprocessing.Array(ctypes.c_double, batch_size)
-
-	batch_queue_x = multiprocessing.Queue()
-	batch_queue_y = multiprocessing.Queue()
-	lock = multiprocessing.Lock()
-
-	pool = multiprocessing.Pool()
-
-	# parent_conn, child_conn = multiprocessing.Pipe()
-
-	pool.map(next_batch_queue_3, (loader, batch_size, image_load_size, True, batch_queue_x, batch_queue_y, lock) )
-	pool.close()
-	pool.join()
-	xl, yl = [], []
-
-	while not batch_queue_x.empty():
-		xl.append(batch_queue_x.get())
-		yl.append(batch_queue_y.get())
-
-	stacked_batch = np.vstack(xl)
-	stacked_labels = np.vstack(yl)
-
-
-	# xxyy = parent_conn.recv()
-	# train_process.join()
-	train_process = multiprocessing.Process(target=next_batch_queue_2,
-	                                        args=(loader, batch_size, image_load_size, True, batch_queue_x, batch_queue_y, lock))
+	train_process = multiprocessing.Process(target=loader.next_batch_async_arr,
+	                                        args=(batch_size, image_load_size, True, x_arr_batch, y_arr_batch))
 
 	train_process.start()
+	# train_process.join()
+	#
+	# x_b = np.frombuffer(x_arr_batch.get_obj()).reshape(batch_shape)
+	# y_b = np.frombuffer(y_arr_batch.get_obj()).reshape(labels_shape)
+
+	# xx_b = x_b.reshape(batch_shape)
+	# yy_b = y_b.reshape(labels_shape)
+
+	# x_0 = xx_b[0].reshape((size, size))
+	# x_0.astype(np.float32)
+	# arr = np.multiply(x_0, 255.0)
+	#
+	# Image.fromarray(arr).show()
+
 
 	with tf.Session() as sess:
 		sess.run(init)
@@ -243,22 +234,18 @@ def train_neural_network(x):
 				#todo: join
 
 				train_process.join()
-				xl, yl = [],[]
-				while not batch_queue_x.empty():
-					xl.append(batch_queue_x.get())
-					yl.append(batch_queue_y.get())
 
-				stacked_batch = np.vstack(xl)
-				stacked_labels = np.vstack(yl)
+				x_b = np.frombuffer(x_arr_batch.get_obj()).reshape(batch_shape)
+				y_b = np.frombuffer(y_arr_batch.get_obj()).reshape(labels_shape)
+
 				#todo: copy ... or not
 
-				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: stacked_batch, y: stacked_labels})
+				batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: x_b, y: y_b})
 
 				#todo: start
-				# train_thread = threading.Thread(target=next_batch_async,
-				#                                  args=(loader, batch_size, image_load_size, True, batch_x_async, batch_y_async))
-				#
-				train_process = multiprocessing.Process(target=next_batch_queue, args=(loader, batch_size, image_load_size, True, batch_queue_x))
+
+				train_process = multiprocessing.Process(target=loader.next_batch_async_arr,
+				                                        args=(batch_size, image_load_size, True, x_arr_batch, y_arr_batch))
 
 				train_process.start()
 
