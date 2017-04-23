@@ -125,6 +125,9 @@ class ThomasNet():
 			sess.run(init)
 			saver = tf.train.Saver()
 			t_total = time.time()
+
+			self.accuracy(logits) #test accuracy of random network
+
 			for epoch in range(self.num_epochs):
 				epoch_loss = 0
 				t_batch_start = time.time()
@@ -230,12 +233,12 @@ class ThomasNet():
 		self.size = 72  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.2
-		self.lr = 1e-6
+		self.lr = 1e-5
 
 		#loader
 		self.batch_size = 500
 		self.image_load_size = 25
-		self.test_set_rate = 0.1  # fraction of dataset used as test-set
+		self.test_set_rate = 0.05  # fraction of dataset used as test-set
 		self.dataset_fraction = 0.02  # fraction of whole dataset used
 
 		# data loader
