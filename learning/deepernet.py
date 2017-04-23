@@ -12,7 +12,7 @@ from load.LoadProcess import LoadProcess
 from load.MainLoader import MainLoader
 
 
-class ThomasNet():
+class DeeperNet():
 	####################################################################
 	###                                 Helpers                      ###
 	####################################################################
@@ -92,16 +92,28 @@ class ThomasNet():
 		# flatten:
 		pool2flattened = tf.reshape(pool2, [-1, int(self.size / 4 * self.size / 4 * 128)])
 
-		# fully connected layer:
-		fc = tf.layers.dense(
+		# fully connected layers:
+		fc1 = tf.layers.dense(
 			inputs=pool2flattened,
 			units=4096,
 			activation=tf.nn.relu,
 		)
 
+		fc2 = tf.layers.dense(
+			inputs=fc1,
+			units=4096,
+			activation=tf.nn.relu,
+		)
+
+		fc3 = tf.layers.dense(
+			inputs=fc2,
+			units=1024,
+			activation=tf.nn.relu,
+		)
+
 		# add dropout
 		dropout = tf.layers.dropout(
-			inputs=fc,
+			inputs=fc3,
 			rate=self.dropout_rate,
 			training=is_training,
 		)  # [batchsize, 1024]
@@ -118,11 +130,12 @@ class ThomasNet():
 	####################################################################
 
 	def train_neural_network(self):
+		x = self.x
 		accs = []
 		epochs = []
 		print("start neural network training")
 
-		logits = self.neural_network_model(self.x)
+		logits = self.neural_network_model(x)
 
 		# cost function
 		cost_func = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=self.y))
@@ -136,6 +149,7 @@ class ThomasNet():
 		process.runtraining()
 
 		batch_lognum = 10  # batch printing/batch modulo
+		batch_accuracy_modulo = 50
 		epoch_lognum = 1  # epoch info interval
 		epoch_save_modulo = 1  # save interval
 		plot_modulo = 5  # plot interval
@@ -157,9 +171,7 @@ class ThomasNet():
 
 					x_b, y_b = process.get_batch()
 
-					# t_train_start = time.time()
-					_, c = sess.run([optimizer_func, cost_func], feed_dict={self.x: x_b, self.y: y_b})
-					# t_train  = time.time() - t_train_start
+					_, c = sess.run([optimizer_func, cost_func], feed_dict={x: x_b, self.y: y_b})
 
 					# start
 					process.runtraining()
@@ -168,6 +180,9 @@ class ThomasNet():
 					if (batch_num % batch_lognum == 0):
 						self.print_batch_info(batch_num, self.num_train_batches, time.time() - t_total)
 						t_total = time.time()
+
+					if batch_num % batch_accuracy_modulo == 0 and batch_num != 0:
+						self.accuracy(logits)
 
 				if epoch % epoch_lognum == 0:
 					self.print_epoch_info(epoch, self.num_epochs, epoch_loss)
@@ -200,7 +215,7 @@ class ThomasNet():
 		###                               Running                        ###
 		####################################################################
 
-	def run_nn(self, batch:np.ndarray, epoch:int, acc:float):
+	def run_nn(self, batch, epoch, acc):
 		"""Runs a pre-trained network. x is a flattened image of the same size as the model has been trained"""
 
 		logits = self.neural_network_model(self.x, False)
@@ -230,7 +245,7 @@ class ThomasNet():
 		self.size = 32  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.2
-		self.lr = 1e-6
+		self.lr = 1e-7
 
 		# loader
 		self.batch_size = 500
@@ -261,4 +276,3 @@ class ThomasNet():
 		# tensorflow things
 		self.x = tf.placeholder("float", [None, self.size * self.size])
 		self.y = tf.placeholder("float")
-		# self.train_neural_network(self.x)
