@@ -258,8 +258,8 @@ class AlexNet():
 		print("loader initialized")
 
 		# data things
-		self.batch_size = 100
-		self.image_load_size = 2
+		self.batch_size = 10
+		self.image_load_size = 5
 		self.test_size = len(self.loader.data) * (self.test_set_rate)
 		self.num_train_batches = int(np.ceil(len(self.loader.trainindexes) / self.image_load_size))
 		self.num_test_batches = int(np.ceil(len(self.loader.testindexes) / self.batch_size))
