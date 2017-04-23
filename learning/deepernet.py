@@ -167,9 +167,9 @@ class DeeperNet():
 				for batch_num in range(self.num_train_batches):
 
 					# join
-					process.wait()
+					# process.wait()
 
-					x_b, y_b = process.get_batch()
+					x_b, y_b = process.await_batch()
 
 					_, c = sess.run([optimizer_func, cost_func], feed_dict={x: x_b, self.y: y_b})
 
@@ -242,16 +242,16 @@ class DeeperNet():
 
 		# Variables
 		# classifier
-		self.size = 32  # (X * X size)
+		self.size = 24  # (X * X size)
 		self.num_epochs = 10
-		self.dropout_rate = 0.2
+		self.dropout_rate = 0.4
 		self.lr = 1e-7
 
 		# loader
 		self.batch_size = 500
 		self.image_load_size = 25
-		self.test_set_rate = 0.05  # fraction of dataset used as test-set
-		self.dataset_fraction = 0.02  # fraction of whole dataset used
+		self.test_set_rate = 0.005  # fraction of dataset used as test-set
+		self.dataset_fraction = 1  # fraction of whole dataset used
 
 		# data loader
 		self.loader = MainLoader(self.size, self.test_set_rate)
