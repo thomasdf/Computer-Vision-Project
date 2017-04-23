@@ -60,8 +60,8 @@ class AlexNet():
 	# convolutional layer 1
 		conv1 = tf.layers.conv2d(
 			inputs=input,
-			filters=64,
-			kernel_size=5,
+			filters=96,
+			kernel_size=11,
 			padding="same",
 			activation=tf.nn.relu,
 		)
@@ -76,21 +76,54 @@ class AlexNet():
 		# convolutional layer 2
 		conv2 = tf.layers.conv2d(
 			inputs=pool1,
-			filters=128,  # output: [batchsize, input, input, 64]
+			filters=256,  # output: [batchsize, input, input, 64]
 			kernel_size=5,
 			padding="same",  # output of same size as input
 			activation=tf.nn.relu,
-		)  # [batchsize, 14, 14, 64]
+		)
 
 		# pooling layer 2
 		pool2 = tf.layers.max_pooling2d(
 			inputs=conv2,
 			pool_size=2,
 			strides=2,
-		)  # [batchsize, 7, 7, 64]
+		)
+
+		# convolutional layer 2
+		conv3 = tf.layers.conv2d(
+			inputs=pool2,
+			filters=384,  # output: [batchsize, input, input, 64]
+			kernel_size=3,
+			padding="same",  # output of same size as input
+			activation=tf.nn.relu,
+		)  # [batchsize, 56, 56, ]
+
+		# convolutional layer 2
+		conv4 = tf.layers.conv2d(
+			inputs=conv3,
+			filters=384,  # output: [batchsize, input, input, 64]
+			kernel_size=3,
+			padding="same",  # output of same size as input
+			activation=tf.nn.relu,
+		)
+
+		# convolutional layer 2
+		conv5 = tf.layers.conv2d(
+			inputs=conv4,
+			filters=256,  # output: [batchsize, input, input, 64]
+			kernel_size=3,
+			padding="same",  # output of same size as input
+			activation=tf.nn.relu,
+		)  # [batchsize, 14, 14, 64]
+
+		pool3 = tf.layers.max_pooling2d(
+			inputs=conv5,
+			pool_size=2,
+			strides=2,
+		)
 
 		# flatten:
-		pool2flattened = tf.reshape(pool2, [-1, int(self.size / 4 * self.size / 4 * 128)])
+		pool2flattened = tf.reshape(conv5, [-1, int(self.size / 8 * self.size / 8 * 256)])
 
 		# fully connected layers:
 		fc1 = tf.layers.dense(
@@ -107,7 +140,7 @@ class AlexNet():
 
 		fc3 = tf.layers.dense(
 			inputs=fc2,
-			units=1024,
+			units=1000,
 			activation=tf.nn.relu,
 		)
 
@@ -256,16 +289,16 @@ class AlexNet():
 
 		# Variables
 		# classifier
-		self.size = 227  # (X * X size)
+		self.size = 112  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.2
 		self.lr = 1e-4
 
 		# loader
-		self.batch_size = 50
-		self.image_load_size = 5
+		self.batch_size = 1
+		self.image_load_size = 1
 		self.test_set_rate = 0.05  # fraction of dataset used as test-set
-		self.dataset_fraction = 0.25  # fraction of whole dataset used
+		self.dataset_fraction = 0.1  # fraction of whole dataset used
 
 		# data loader
 		# print("loader initialized")
