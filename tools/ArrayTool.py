@@ -27,6 +27,7 @@ def draw2d(array2d: np.ndarray, xmin: int, ymin: int, xmax: int, ymax: int, colo
 
 def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: float=.90):
     object = [(0, 255, 255, intensity), (0,0,255,intensity), (255,0,0, intensity), (0,255,0,intensity)]
+    dont_use_treshhold = treshold == -1
     # sign:turkis  ped:blue car:rød truck:grønn
     # 1. nothing = (0,0,0,0)
     # 2. car = (0,255,255,intensity)
@@ -39,7 +40,7 @@ def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: 
         x, y = xy
         offset = (x, y)
         object_index = cl.argmax()
-        if (cl[object_index] >= treshold):
+        if (dont_use_treshhold or cl[object_index] >= treshold):
             # object_index = cl.argmax()
             pdraw.rectangle([0, 0, size, size], fill=object[object_index], outline=object[object_index])
             im.paste(rect,offset, mask=rect)
