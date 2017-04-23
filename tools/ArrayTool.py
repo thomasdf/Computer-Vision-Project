@@ -89,13 +89,13 @@ def out(img: Image, classifier):
     arr = np.asarray(img.convert('L'))
 
     tslide = time.time()
-    coor, slices  = slide(arr, tn.size, tn.size)
+    coor, slices  = slide(arr, classifier.size, classifier.size)
     tslide = time.time() - tslide
     tclasfy = time.time()
     # c = []
     # for x, y, e in b:
     #     c.append((x, y, classifier(e)))
-    r = tn.run_nn(slices, 3, 0.552)
+    r = classifier.run_nn(slices, 3, 0.552)
 
 
     tclasfy = time.time() - tclasfy
@@ -103,7 +103,7 @@ def out(img: Image, classifier):
     c = zip(coor, r)
 
     tshade = time.time()
-    a = shade2d(img, c, tn.size, 120, .90)
+    a = shade2d(img, c, classifier.size, 120, .90)
     tshade = time.time() - tshade
 
     ttot = time.time() - ttot
