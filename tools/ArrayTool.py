@@ -81,9 +81,9 @@ def classicer(array: np.ndarray):
     return Img.static_normalized(a)
 
 
-def out(img: Image):
+def out(img: Image, classifier):
     ttot = time.time()
-    tn = ThomasNet()
+    #
     # clsfy = np.vectorize(classifier)
 
     arr = np.asarray(img.convert('L'))
@@ -117,7 +117,7 @@ def out(img: Image):
 
 
 if __name__ == '__main__':
-    a = out(Image.open(random_pic_path))
+    a = out(Image.open(random_pic_path), ThomasNet())
     Image.fromarray(a).show()
 
 
