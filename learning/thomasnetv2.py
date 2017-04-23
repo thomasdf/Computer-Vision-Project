@@ -200,7 +200,7 @@ class ThomasNet():
 ###                               Running                        ###
 ####################################################################
 
-	def run_nn(self, batch:np.ndarray, epoch:str, acc):
+	def run_nn(self, batch:np.ndarray, epoch:int, acc:float):
 		"""Runs a pre-trained network. x is a flattened image of the same size as the model has been trained"""
 
 		logits = self.neural_network_model(self.x, False)
