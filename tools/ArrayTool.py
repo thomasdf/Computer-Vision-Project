@@ -81,7 +81,7 @@ def classicer(array: np.ndarray):
     return Img.static_normalized(a)
 
 
-def out(img: Image, classifier, epoch: int, acc: float):
+def out(img: Image, classifier, epoch: int, acc: float, treshold: float = .90):
     ttot = time.time()
     #
     # clsfy = np.vectorize(classifier)
@@ -103,7 +103,7 @@ def out(img: Image, classifier, epoch: int, acc: float):
     c = zip(coor, r)
 
     tshade = time.time()
-    a = shade2d(img, c, classifier.size, 120, .90)
+    a = shade2d(img, c, classifier.size, 120, treshold)
     tshade = time.time() - tshade
 
     ttot = time.time() - ttot

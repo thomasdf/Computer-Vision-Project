@@ -23,7 +23,7 @@ def main():
 	classifier = DeeperNet()
 	# classifier.train_neural_network()
 
-	a = ArrayTool.out(Image.open(random_pic_path), classifier, 1, 0.580)
+	a = ArrayTool.out(Image.open(random_pic_path), classifier, 9, 0.582, 0.1)
 	Image.fromarray(a).show()
 
 
