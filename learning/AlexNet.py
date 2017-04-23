@@ -123,7 +123,7 @@ class AlexNet():
 		)
 
 		# flatten:
-		pool2flattened = tf.reshape(conv5, [-1, int(self.size / 8 * self.size / 8 * 256)])
+		pool2flattened = tf.reshape(pool3, [-1, int(self.size / 8 * self.size / 8 * 256)])
 
 		# fully connected layers:
 		fc1 = tf.layers.dense(
@@ -156,7 +156,7 @@ class AlexNet():
 			units=self.n_classes,
 		)
 
-		return logits
+		return tf.nn.softmax(logits)
 
 	def init_loader(self):
 		self.loader = MainLoader(self.size, self.test_set_rate)
@@ -183,18 +183,18 @@ class AlexNet():
 		cost_func = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=self.y))
 
 		# optimizer function
-		optimizer_func = tf.train.AdamOptimizer(self.lr).minimize(cost_func)
+		optimizer_func = tf.train.GradientDescentOptimizer(self.lr).minimize(cost_func)
 		# init variables and session
 		init = tf.global_variables_initializer()
 
 		process = LoadProcess(self.loader, self.batch_size, self.image_load_size, self.size, self.n_classes)
 		process.runtraining()
 
-		batch_lognum = 10  # batch printing/batch modulo
-		batch_accuracy_modulo = 50
+		batch_lognum = 2  # batch printing/batch modulo
+		batch_accuracy_modulo = 2
 		epoch_lognum = 1  # epoch info interval
 		epoch_save_modulo = 1  # save interval
-		plot_modulo = 100  # plot interval
+		plot_modulo = 100 # plot interval
 
 		with tf.Session() as sess:
 			sess.run(init)
@@ -273,7 +273,7 @@ class AlexNet():
 			init = tf.global_variables_initializer()
 			sess.run(init)
 			# res = sess.run(logits, feed_dict={self.x: batch})
-			res = sess.run(tf.nn.softmax(logits), feed_dict={self.x: batch})
+			res = sess.run(logits, feed_dict={self.x: batch})
 		return res
 
 	####################################################################
@@ -289,16 +289,16 @@ class AlexNet():
 
 		# Variables
 		# classifier
-		self.size = 112  # (X * X size)
+		self.size = 96  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.2
-		self.lr = 1e-4
+		self.lr = 1e-7
 
 		# loader
-		self.batch_size = 1
-		self.image_load_size = 1
+		self.batch_size = 128
+		self.image_load_size = 128
 		self.test_set_rate = 0.05  # fraction of dataset used as test-set
-		self.dataset_fraction = 0.1  # fraction of whole dataset used
+		self.dataset_fraction = 0.02  # fraction of whole dataset used
 
 		# data loader
 		# print("loader initialized")
