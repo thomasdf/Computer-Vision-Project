@@ -207,8 +207,7 @@ class ThomasNet():
 
 		with tf.Session() as sess:
 			saver = tf.train.import_meta_graph(
-				self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
-					acc) + ".checkpoint.meta")
+				self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint.meta")
 			saver.restore(sess, self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
 				acc) + ".checkpoint")
 

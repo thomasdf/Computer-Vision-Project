@@ -41,9 +41,9 @@ def slide(array: np.ndarray, stride: int, size: int):
 			arr = array[y:(y + size), x:(x + size)]
 
 			# a = draw2d(a, x, y, (x + size), (y + size))
-
+			a = Img.static_normalized(arr.ravel())
 			coordinates.append((x, y))
-			slices.append(arr.ravel())
+			slices.append(a)
 	stacked_slice = np.vstack(slices)
 	return coordinates, stacked_slice
 
