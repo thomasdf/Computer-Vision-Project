@@ -3,7 +3,9 @@
 def main():
 	from learning.AlexNet import AlexNet
 	from learning.thomasnetv2 import ThomasNet
-	ThomasNet()
+	tn = ThomasNet()
+	# tn.train_neural_network()
+	tn.run_nn()
 	#AlexNet()
 
 

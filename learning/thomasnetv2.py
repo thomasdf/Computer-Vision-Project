@@ -98,12 +98,12 @@ class ThomasNet():
 ###                               Training                       ###
 ####################################################################
 
-	def train_neural_network(self, x):
+	def train_neural_network(self):
 		accs = []
 		epochs = []
 		print("start neural network training")
 
-		logits = self.neural_network_model(x)
+		logits = self.neural_network_model(self.x)
 
 		# cost function
 		cost_func = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=self.y))
@@ -146,7 +146,7 @@ class ThomasNet():
 					# todo: copy ... or not
 
 					# t_train_start = time.time()
-					_, c = sess.run([optimizer_func, cost_func], feed_dict={x: x_b, self.y: y_b})
+					_, c = sess.run([optimizer_func, cost_func], feed_dict={self.x: x_b, self.y: y_b})
 					# t_train  = time.time() - t_train_start
 
 					# todo: start
@@ -200,7 +200,7 @@ class ThomasNet():
 ###                               Running                        ###
 ####################################################################
 
-	def run_nn(self, batch, epoch, acc):
+	def run_nn(self, batch:np.ndarray, epoch:str, acc):
 		"""Runs a pre-trained network. x is a flattened image of the same size as the model has been trained"""
 
 		logits = self.neural_network_model(self.x, False)
@@ -263,4 +263,4 @@ class ThomasNet():
 		# tensorflow things
 		self.x = tf.placeholder("float", [None, self.size * self.size])
 		self.y = tf.placeholder("float")
-		self.train_neural_network(self.x)
+		# self.train_neural_network(self.x)
