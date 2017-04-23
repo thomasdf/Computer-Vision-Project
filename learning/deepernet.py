@@ -157,7 +157,7 @@ class DeeperNet():
 		process.runtraining()
 
 		batch_lognum = 10  # batch printing/batch modulo
-		batch_accuracy_modulo = 50
+		batch_accuracy_modulo = 10000
 		epoch_lognum = 1  # epoch info interval
 		epoch_save_modulo = 1  # save interval
 		plot_modulo = 100   # plot interval
@@ -256,14 +256,14 @@ class DeeperNet():
 		# classifier
 		self.size = 32  # (X * X size)
 		self.num_epochs = 10
-		self.dropout_rate = 0.4
-		self.lr = 1e-8
+		self.dropout_rate = 0.2
+		self.lr = 1e-4
 
 		# loader
-		self.batch_size = 1000
-		self.image_load_size = 100
-		self.test_set_rate = 0.005  # fraction of dataset used as test-set
-		self.dataset_fraction = 1  # fraction of whole dataset used
+		self.batch_size = 20
+		self.image_load_size = 1
+		self.test_set_rate = 0.05  # fraction of dataset used as test-set
+		self.dataset_fraction = 0.25  # fraction of whole dataset used
 
 		# data loader
 		# print("loader initialized")

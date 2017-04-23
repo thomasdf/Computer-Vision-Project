@@ -7,104 +7,107 @@ import time
 
 import os
 
-###########################################################################################
-###                                 TF/NN                                               ###
-###########################################################################################
 from load import labels
 from load.LoadProcess import LoadProcess
 from load.MainLoader import MainLoader
 
+
 class AlexNet():
+	####################################################################
+	###                                 Helpers                      ###
+	####################################################################
+	def conv2D(self, x, W):
+		return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding="SAME")
+
+	def maxpool2d(self, x):
+		return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="SAME")
+
+	def print_batch_info(self, batch_num, num_batches, time):
+		print("Batch ", batch_num, " of ", num_batches, " complete. Time: ", "{: 1.2f}".format(time))
+
+	def print_epoch_info(self, epoch_num, num_epochs, loss):
+		print("Epoch ", epoch_num, " of ", num_epochs, " complete. loss: ", loss)
+
+	def print_acc_info(self, accuracy):
+		print("accuracy: ", accuracy)
+
+	def print_acc_progress(self, percentage):
+		print("calculating accuracy. ", percentage, "% complete.")
+
+	def accuracy(self, prediction):
+		correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(self.y, 1))
+		acc = tf.reduce_mean(tf.cast(correct, "float"))
+		accumulated_acc = 0
+		for i in range(self.num_test_batches):
+			test_x, test_y = self.loader.next_batch(self.batch_size, is_training=False)
+			accumulated_acc += acc.eval({self.x: test_x, self.y: test_y})
+			if i % max((self.num_test_batches // 10), 1) == 0:
+				self.print_acc_progress(i * 10)
+		self.print_acc_info(accumulated_acc / self.num_test_batches)
+		self.loader.index_test = 0
+		return accumulated_acc
+
+	####################################################################
+	###                               NN-Definition                  ###
+	####################################################################
+
 	def neural_network_model(self, x, is_training: bool = True):
 		"""Defines the neural network model. Output is a n_labels long array"""
 
-		#not 100% alexnet, but very alexnet-like
-
 		# input layer
-		input = tf.reshape(x, shape=[-1, 224, 224, 1])
+		input = tf.reshape(x, shape=[-1, int(self.size), int(self.size), 1])
 
-		# convolutional layer 1
+	# convolutional layer 1
 		conv1 = tf.layers.conv2d(
 			inputs=input,
-			filters=96,
-			kernel_size=11,
-			padding="valid",
-			strides=4,
+			filters=64,
+			kernel_size=5,
+			padding="same",
 			activation=tf.nn.relu,
-		)  # [batchsize, 54, 54, 96]
+		)
 
 		# max-pooling layer 1
 		pool1 = tf.layers.max_pooling2d(
 			inputs=conv1,
-			pool_size=3,
+			pool_size=2,
 			strides=2,
-		) #[batchsize, 26, 26, 96]
+		)
 
 		# convolutional layer 2
 		conv2 = tf.layers.conv2d(
 			inputs=pool1,
-			filters=256,
+			filters=128,  # output: [batchsize, input, input, 64]
 			kernel_size=5,
-			strides=1,
-			padding="same",
+			padding="same",  # output of same size as input
 			activation=tf.nn.relu,
-		)  # [batchsize, 26, 26, 256]
+		)  # [batchsize, 14, 14, 64]
 
 		# pooling layer 2
 		pool2 = tf.layers.max_pooling2d(
 			inputs=conv2,
-			pool_size=3,
+			pool_size=2,
 			strides=2,
-		)  # [batchsize, 12, 12, 256]
+		)  # [batchsize, 7, 7, 64]
 
-		conv3 = tf.layers.conv2d(
-			inputs=pool2,
-			filters=384,
-			kernel_size=3,
-			strides=1,
-			padding="same",
-			activation=tf.nn.relu,
-		) #[12,12, 384]
+		# flatten:
+		pool2flattened = tf.reshape(pool2, [-1, int(self.size / 4 * self.size / 4 * 128)])
 
-		conv4 = tf.layers.conv2d(
-			inputs=conv3,
-			filters=384,
-			kernel_size=3,
-			strides=1,
-			padding="same",
-		) #[ , 12, 12, 384 ]
-
-		conv5 = tf.layers.conv2d(
-			inputs=conv4,
-			filters=256,
-			kernel_size=3,
-			strides=1,
-			padding="same",
-			activation=tf.nn.relu,
-		) #[, 12, 12, 256]
-
-		pool3 = tf.layers.max_pooling2d(
-			inputs=conv5,
-			pool_size=3,
-			strides=2,
-		)#[, 5, 5, 256]
-
-		pool3flattened = tf.reshape(pool3, [-1, 5*5*256])
-
-		#fully connected
+		# fully connected layers:
 		fc1 = tf.layers.dense(
-			inputs=pool3flattened,
+			inputs=pool2flattened,
 			units=4096,
 			activation=tf.nn.relu,
 		)
+
 		fc2 = tf.layers.dense(
 			inputs=fc1,
 			units=4096,
 			activation=tf.nn.relu,
 		)
+
 		fc3 = tf.layers.dense(
 			inputs=fc2,
-			units=1000,
+			units=1024,
 			activation=tf.nn.relu,
 		)
 
@@ -113,111 +116,98 @@ class AlexNet():
 			inputs=fc3,
 			rate=self.dropout_rate,
 			training=is_training,
-		)
+		)  # [batchsize, 1024]
 
-		output = tf.layers.dense(
+		logits = tf.layers.dense(
 			inputs=dropout,
 			units=self.n_classes,
 		)
 
-		return output
+		return logits
 
+	def init_loader(self):
+		self.loader = MainLoader(self.size, self.test_set_rate)
+		self.test_size = len(self.loader.data) * (self.test_set_rate)
+		self.num_train_batches = int(
+			(np.ceil(len(self.loader.trainindexes) / self.image_load_size)) * self.dataset_fraction)
+		self.num_test_batches = max(
+			int((np.ceil(len(self.loader.testindexes) / self.batch_size)) * self.dataset_fraction), 1)
 
-	# def next_batch_pipe(loader: MainLoader, batch_size: int, images_used: int, is_training: bool, conn):
-	# 	x, y = loader.next_batch(batch_size, images_used, is_training)
-	# 	conn.send((x, y))
-	# 	conn.close()
+	####################################################################
+	###                               Training                       ###
+	####################################################################
 
-
-	def train_neural_network(self, x):
+	def train_neural_network(self):
+		self.init_loader()
+		x = self.x
 		accs = []
 		epochs = []
 		print("start neural network training")
 
-		nn_output = self.neural_network_model(x)
+		logits = self.neural_network_model(x)
 
 		# cost function
-		cost_func = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=nn_output, labels=self.y))
+		cost_func = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=self.y))
 
 		# optimizer function
-		optimizer_func = tf.train.GradientDescentOptimizer(self.lr).minimize(cost_func)
+		optimizer_func = tf.train.AdamOptimizer(self.lr).minimize(cost_func)
 		# init variables and session
 		init = tf.global_variables_initializer()
-
-
 
 		process = LoadProcess(self.loader, self.batch_size, self.image_load_size, self.size, self.n_classes)
 		process.runtraining()
 
-
-		lognum = 10
+		batch_lognum = 10  # batch printing/batch modulo
+		batch_accuracy_modulo = 50
+		epoch_lognum = 1  # epoch info interval
+		epoch_save_modulo = 1  # save interval
+		plot_modulo = 100  # plot interval
 
 		with tf.Session() as sess:
 			sess.run(init)
 			saver = tf.train.Saver()
 			t_total = time.time()
+
+			self.accuracy(logits)  # test accuracy of random network
+
 			for epoch in range(self.num_epochs):
-				epoch_cost = 0
+				epoch_loss = 0
 				t_batch_start = time.time()
 				for batch_num in range(self.num_train_batches):
 
+					# join
+					# process.wait()
 
-					#todo: join
+					x_b, y_b = process.await_batch()
 
-					# t_load_start = time.time()
-					process.wait()
-					# t_load = time.time() - t_load_start
-					# x_b = np.frombuffer(x_arr_batch.get_obj()).reshape(batch_shape)
-					# y_b = np.frombuffer(y_arr_batch.get_obj()).reshape(labels_shape)
-					# t_batch_start = time.time()
-					x_b, y_b = process.get_batch()
-					# t_batch = time.time() - t_batch_start
-					#todo: copy ... or not
+					_, c = sess.run([optimizer_func, cost_func], feed_dict={x: x_b, self.y: y_b})
 
-					# t_train_start = time.time()
-					batch, c = sess.run([optimizer_func, cost_func], feed_dict={x: x_b, self.y: y_b})
-					# t_train  = time.time() - t_train_start
-
-					#todo: start
-					# t_run_start = time.time()
+					# start
 					process.runtraining()
-					# t_run = time.time() - t_run_start
-					# t_tot = time.time()
 
-					epoch_cost += c
-					if(batch_num % lognum == 0):
-						print(lognum, 'batches took', '{:10.3f}'.format(time.time() - t_total), 'seconds')
+					epoch_loss += c
+					if (batch_num % batch_lognum == 0):
+						self.print_batch_info(batch_num, self.num_train_batches, time.time() - t_total)
 						t_total = time.time()
 
-						# print("Batch ", batch_num, " of ", self.num_train_batches, "\tCost ", "{:10.6f}".format(c),
-						#       " previous batch wait time", "{:10.2f}".format(t_train),
-						#       ' previous batch loading time', "{:10.2f}".format(t_load),
-						#       ' get time', "{:10.2f}".format(t_batch),
-						#       ' run time', "{:10.2f}".format(t_run),
-						#       ' batch time ', "{:10.2f}".format(t_tot - t_load_start))
-					# if (batch_num % 500 == 0 and batch_num != 0):
-					# 	saver.save(sess, base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "batch" + str(batch_num) + "cost" + "{:0.2f}".format(c) + ".checkpoint")
+					if batch_num % batch_accuracy_modulo == 0 and batch_num != 0:
+						self.accuracy(logits)
 
-				print("Epoch", str(epoch), " of ", str(self.num_epochs), " cost: ", str(epoch_cost), 'Time: ', time.time() - t_batch_start)
-				correct = tf.equal(tf.argmax(nn_output, 1), tf.argmax(self.y, 1))
-				accuracy = tf.reduce_mean(tf.cast(correct, "float"))
+				if epoch % epoch_lognum == 0:
+					self.print_epoch_info(epoch, self.num_epochs, epoch_loss)
 
 				print("Epoch complete. Calculating accuracy...")
 
-				epoch_acc = 0
-				for n in range(self.num_test_batches):
-					t0 = time.time()
-					test_batch_x, test_batch_y = self.loader.next_batch(self.batch_size, is_training=False)
-					#test_batch_x, test_batch_y = mnist.test.next_batch(batch_size)
-					epoch_acc += accuracy.eval({x: test_batch_x, self.y: test_batch_y})
-					print("Calculating accuracy. ", "{:10.2f}".format((n / self.num_test_batches) * 100), "% complete. Time:", (time.time() - t0))
-				acc = epoch_acc / self.num_train_batches
-				print("Epoch Accuracy: ", acc, 'Epoch time:', time.time() - t_batch_start, 'Total time:', time.time() - t_total)
+				acc = self.accuracy(logits)
 				accs.append(acc)
 				epochs.append(epoch)
 
-				if epoch % 5 == 0:
-					saver.save(sess, self.base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint")
+				if epoch % epoch_save_modulo == 0:
+					saver.save(sess,
+					           self.base_dir + "/savedmodels/thomasnet/epoch" +
+					           str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint")
+
+				if epoch % plot_modulo == 0 and epoch != 0:
 					plt.figure()
 					gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
 					plt.legend()
@@ -230,46 +220,58 @@ class AlexNet():
 			plt.legend()
 			plt.show()
 
+		####################################################################
+		###                               Running                        ###
+		####################################################################
 
-
-	def run_nn(self, x, epoch, acc):
+	def run_nn(self, batch, epoch, acc):
 		"""Runs a pre-trained network. x is a flattened image of the same size as the model has been trained"""
+
+		logits = self.neural_network_model(self.x, False)
+		chachpoint_path = self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
+			acc) + '.checkpoint'
+		# saver = tf.train.Saver()
 		with tf.Session() as sess:
-			saver = tf.train.import_meta_graph(self.base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint.meta")
-			saver.restore(sess, self.base_dir + "/savedmodels/Alex/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
-				acc) + ".checkpoint")
+			saver = tf.train.import_meta_graph(chachpoint_path + '.meta')
+			saver.restore(sess=sess, save_path=chachpoint_path)
+			# all_vars = tf.get_collection('vars')
+			# for v in all_vars:
+			# 	sess.run(v)
+			init = tf.global_variables_initializer()
+			sess.run(init)
+			# res = sess.run(logits, feed_dict={self.x: batch})
+			res = sess.run(tf.nn.softmax(logits), feed_dict={self.x: batch})
+		return res
+
+	####################################################################
+	###                               class-things                   ###
+	####################################################################
+
+
+
 
 	def __init__(self):
-
-		os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
-
 		# print(device_lib.list_local_devices())
-
-		###########################################################################################
-		###                                 THINGS                                              ###
-		###########################################################################################
-
 		self.base_dir = os.path.dirname(os.path.dirname(__file__))
 
-		# data loader
-		self.test_set_rate = 0.01  # fraction of dataset used as test-set
-		self.loader = MainLoader(224, self.test_set_rate)
-		print("loader initialized")
-
-		# data things
-		self.batch_size = 10
-		self.image_load_size = 5
-		self.test_size = len(self.loader.data) * (self.test_set_rate)
-		self.num_train_batches = int(np.ceil(len(self.loader.trainindexes) / self.image_load_size))
-		self.num_test_batches = int(np.ceil(len(self.loader.testindexes) / self.batch_size))
-		# training things
+		# Variables
+		# classifier
+		self.size = 227  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.2
-		self.lr = 0.001
+		self.lr = 1e-4
 
+		# loader
+		self.batch_size = 50
+		self.image_load_size = 5
+		self.test_set_rate = 0.05  # fraction of dataset used as test-set
+		self.dataset_fraction = 0.25  # fraction of whole dataset used
+
+		# data loader
+		# print("loader initialized")
+
+		# data things
 		# classifier things
-		self.size = 224  # (X * X size)
 		self.n_classes = len(labels)
 		self.flat_batch_size = self.size * self.size * self.batch_size
 		self.flat_labels_size = self.batch_size * self.n_classes
@@ -277,10 +279,7 @@ class AlexNet():
 		self.labels_shape = (self.batch_size, self.n_classes)
 
 		# tensorflow things
-		self.x = tf.placeholder("float", [None, 224 * 224])
+		self.x = tf.placeholder("float", [None, self.size * self.size])
 		self.y = tf.placeholder("float")
-		self.train_neural_network(self.x)
 
-# if __name__ == '__main__':
-
-# run_nn(x, 0, 0.01)
+	# training things

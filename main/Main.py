@@ -17,10 +17,10 @@ def main():
 	import os
 	os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 	# from learning.AlexNet import AlexNet
-	# from learning.thomasnetv2 import ThomasNet
+	from learning.thomasnetv2 import ThomasNet
 	from learning.deepernet import DeeperNet
 	classifier = DeeperNet()
-	# classifier.init_loader()
+	classifier.init_loader()
 	classifier.train_neural_network()
 
 	# a = ArrayTool.out(Image.open(random_pic_path), classifier, 9, 0.582, .3)

@@ -213,7 +213,7 @@ class ThomasNet():
 
 			init = tf.global_variables_initializer()
 			sess.run(init)
-			res = sess.run(logits, feed_dict={self.x: batch})
+			res = sess.run(tf.nn.softmax(logits), feed_dict={self.x: batch})
 		return res
 
 	####################################################################
