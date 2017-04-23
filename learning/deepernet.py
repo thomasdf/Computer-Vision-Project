@@ -263,7 +263,7 @@ class DeeperNet():
 		self.batch_size = 1000
 		self.image_load_size = 100
 		self.test_set_rate = 0.005  # fraction of dataset used as test-set
-		self.dataset_fraction = 1  # fraction of whole dataset used
+		self.dataset_fraction = 0.5  # fraction of whole dataset used
 
 		# data loader
 		# print("loader initialized")

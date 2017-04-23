@@ -25,7 +25,7 @@ def draw2d(array2d: np.ndarray, xmin: int, ymin: int, xmax: int, ymax: int, colo
     return a
 
 
-def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: float=.90):
+def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: float=.90, scaled_shader: bool = True):
     object = [(0, 255, 255, intensity), (0,0,255,intensity), (255,0,0, intensity), (0,255,0,intensity)]
     dont_use_treshhold = treshold == -1
     # sign:turkis  ped:blue car:rød truck:grønn
@@ -40,9 +40,12 @@ def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: 
         x, y = xy
         offset = (x, y)
         object_index = cl.argmax()
-        if (dont_use_treshhold or cl[object_index] >= treshold):
+        scale = cl[object_index]
+        if (dont_use_treshhold or scale >= treshold):
             # object_index = cl.argmax()
-            pdraw.rectangle([0, 0, size, size], fill=object[object_index], outline=object[object_index])
+            color = object[object_index]
+            color[3] = (color[3] * scale) if scaled_shader else color[3]
+            pdraw.rectangle([0, 0, size, size], fill=color, outline=object[object_index])
             im.paste(rect,offset, mask=rect)
     return np.array(im)
 
