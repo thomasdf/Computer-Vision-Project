@@ -21,10 +21,12 @@ def main():
 	from learning.deepernet import DeeperNet
 	classifier = DeeperNet()
 	# classifier.init_loader()
+
+	# a = ArrayTool.out(Image.open(random_pic_path), classifier, 9, 0.582, .25, True)
+	# Image.fromarray(a).show()
+
 	classifier.train_neural_network()
 
-	# a = ArrayTool.out(Image.open(random_pic_path), classifier, 9, 0.582, .3)
-	# Image.fromarray(a).show()
 
 
 if __name__ == '__main__':

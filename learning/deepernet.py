@@ -123,7 +123,7 @@ class DeeperNet():
 			units=self.n_classes,
 		)
 
-		return logits
+		return tf.nn.softmax(logits)
 	def init_loader(self):
 		self.loader = MainLoader(self.size, self.test_set_rate)
 		self.test_size = len(self.loader.data) * (self.test_set_rate)
@@ -257,13 +257,13 @@ class DeeperNet():
 		self.size = 32  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.4
-		self.lr = 1e-8
+		self.lr = 1e-4
 
 		# loader
-		self.batch_size = 1000
-		self.image_load_size = 100
+		self.batch_size = 200
+		self.image_load_size = 50
 		self.test_set_rate = 0.005  # fraction of dataset used as test-set
-		self.dataset_fraction = 0.5  # fraction of whole dataset used
+		self.dataset_fraction = 0.4  # fraction of whole dataset used
 
 		# data loader
 		# print("loader initialized")

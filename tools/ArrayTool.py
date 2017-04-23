@@ -43,9 +43,10 @@ def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: 
         scale = cl[object_index]
         if (dont_use_treshhold or scale >= treshold):
             # object_index = cl.argmax()
-            color = object[object_index]
-            color[3] = (color[3] * scale) if scaled_shader else color[3]
-            pdraw.rectangle([0, 0, size, size], fill=color, outline=object[object_index])
+
+            color = list(object[object_index])
+            color[3] = int(color[3] * scale) if scaled_shader else color[3]
+            pdraw.rectangle([0, 0, size, size], fill=tuple(color), outline=object[object_index])
             im.paste(rect,offset, mask=rect)
     return np.array(im)
 
@@ -85,7 +86,7 @@ def classicer(array: np.ndarray):
     return Img.static_normalized(a)
 
 
-def out(img: Image, classifier, epoch: int, acc: float, treshold: float = .90):
+def out(img: Image, classifier, epoch: int, acc: float, treshold: float = .90, scaled_shade:bool = True):
     ttot = time.time()
     #
     # clsfy = np.vectorize(classifier)
@@ -107,7 +108,7 @@ def out(img: Image, classifier, epoch: int, acc: float, treshold: float = .90):
     c = zip(coor, r)
 
     tshade = time.time()
-    a = shade2d(img, c, classifier.size, 120, treshold)
+    a = shade2d(img, c, classifier.size, 255, treshold, scaled_shade)
     tshade = time.time() - tshade
 
     ttot = time.time() - ttot
