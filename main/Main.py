@@ -1,3 +1,12 @@
+import os
+
+from PIL import Image
+
+from tools import ArrayTool
+
+base_dir = os.path.dirname(os.path.dirname(__file__))
+
+random_pic_path = base_dir + '/datasets/object-detection-crowdai/1479498371963069978.jpg'
 
 
 def main():
@@ -11,6 +20,8 @@ def main():
 	#ThomasNet()
 	#AlexNet()
 
+	a = ArrayTool.out(Image.open(random_pic_path), ThomasNet())
+	Image.fromarray(a).show()
 
 if __name__ == '__main__':
 	# import multiprocessing
