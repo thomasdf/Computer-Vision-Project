@@ -195,8 +195,8 @@ class DeeperNet():
 
 				if epoch % epoch_save_modulo == 0:
 					saver.save(sess,
-					           self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
-						           acc) + ".checkpoint")
+					           self.base_dir + "/savedmodels/thomasnet/epoch" +
+					           str(epoch) + "acc" + "{:1.3f}".format(acc) + ".checkpoint")
 
 				if epoch % plot_modulo == 0 and epoch != 0:
 					plt.figure()
@@ -219,16 +219,16 @@ class DeeperNet():
 		"""Runs a pre-trained network. x is a flattened image of the same size as the model has been trained"""
 
 		logits = self.neural_network_model(self.x, False)
-
+		chachpoint_path = self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + '.checkpoint'
+		saver = tf.train.Saver()
 		with tf.Session() as sess:
-			saver = tf.train.import_meta_graph(
-				self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
-					acc) + ".checkpoint.meta")
-			saver.restore(sess, self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
-				acc) + ".checkpoint")
-
-			init = tf.global_variables_initializer()
-			sess.run(init)
+			# saver = tf.train.import_meta_graph(chachpoint_path + '.meta')
+			saver.restore(sess=sess, save_path=chachpoint_path)
+			all_vars = tf.get_collection('vars')
+			for v in all_vars:
+				sess.run(v)
+			# init = tf.global_variables_initializer()
+			# sess.run(init)
 			res = sess.run(logits, feed_dict={self.x: batch})
 		return res
 
