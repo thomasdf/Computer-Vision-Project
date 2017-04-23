@@ -89,11 +89,6 @@ class ThomasNet():
 
 		return output
 
-	# def next_batch_pipe(loader: MainLoader, batch_size: int, images_used: int, is_training: bool, conn):
-	# 	x, y = loader.next_batch(batch_size, images_used, is_training)
-	# 	conn.send((x, y))
-	# 	conn.close()
-
 ####################################################################
 ###                               Training                       ###
 ####################################################################
@@ -133,42 +128,21 @@ class ThomasNet():
 				t_batch_start = time.time()
 				for batch_num in range(self.num_train_batches):
 
-					# todo: join
-
-					# t_load_start = time.time()
+					# join
 					process.wait()
-					# t_load = time.time() - t_load_start
-					# x_b = np.frombuffer(x_arr_batch.get_obj()).reshape(batch_shape)
-					# y_b = np.frombuffer(y_arr_batch.get_obj()).reshape(labels_shape)
-					# t_batch_start = time.time()
+
 					x_b, y_b = process.get_batch()
-					# t_batch = time.time() - t_batch_start
-					# todo: copy ... or not
 
-					# t_train_start = time.time()
 					_, c = sess.run([optimizer_func, cost_func], feed_dict={x: x_b, self.y: y_b})
-					# t_train  = time.time() - t_train_start
 
-					# todo: start
-					# t_run_start = time.time()
+					# start
 					process.runtraining()
-					# t_run = time.time() - t_run_start
-					# t_tot = time.time()
 
 					epoch_loss += c
 					if (batch_num % batch_lognum == 0):
 						self.print_batch_info(batch_num, self.num_train_batches)
 						print(batch_lognum, 'batches took', '{:10.3f}'.format(time.time() - t_total), 'seconds')
 						t_total = time.time()
-
-					# print("Batch ", batch_num, " of ", self.num_train_batches, "\tCost ", "{:10.6f}".format(c),
-					#       " previous batch wait time", "{:10.2f}".format(t_train),
-					#       ' previous batch loading time', "{:10.2f}".format(t_load),
-					#       ' get time', "{:10.2f}".format(t_batch),
-					#       ' run time', "{:10.2f}".format(t_run),
-					#       ' batch time ', "{:10.2f}".format(t_tot - t_load_start))
-					# if (batch_num % 500 == 0 and batch_num != 0):
-					#
 
 				if epoch % epoch_lognum == 0:
 					self.print_epoch_info(epoch, self.num_epochs, epoch_loss)
@@ -258,7 +232,6 @@ class ThomasNet():
 		self.num_train_batches = int((np.ceil(len(self.loader.trainindexes) / self.image_load_size))* self.dataset_fraction)
 		self.num_test_batches = max(int((np.ceil(len(self.loader.testindexes) / self.batch_size)) * self.dataset_fraction), 1)
 		# training things
-
 
 		# tensorflow things
 		self.x = tf.placeholder("float", [None, self.size * self.size])
