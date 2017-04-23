@@ -1,13 +1,17 @@
+import os
+import time
+
 import numpy as np
 from PIL import Image
 from PIL import ImageDraw
-import numpy as np
-from learning.SlidingWindowV2 import slidy_mac_slideface, classic
-import os
+
+from image.Image import Img
+from learning.SlidingWindowV2 import slide
+from learning.thomasnetv2 import ThomasNet
+
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 random_pic_path = base_dir + '/datasets/object-detection-crowdai/1479498371963069978.jpg'
-
 
 def draw2d(array2d: np.ndarray, xmin: int, ymin: int, xmax: int, ymax: int, color: [int] = (255, 0, 0)):
     a = array2d.copy()
@@ -21,38 +25,102 @@ def draw2d(array2d: np.ndarray, xmin: int, ymin: int, xmax: int, ymax: int, colo
     return a
 
 
-def shade2d(classified_img, size: int, intensity: int = 1):
-    treshold = .90
-    object = [(0,0,0,0), (0,255,255,intensity), (255,0,255, intensity), (255,255,0,intensity), (0,255,0, intensity), (0,0,0,0)]
+def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: float=.90):
+    object = [(0, 255, 255, intensity), (0,0,255,intensity), (255,0,0, intensity), (0,255,0,intensity)]
+    # sign:turkis  ped:blue car:rød truck:grønn
     # 1. nothing = (0,0,0,0)
     # 2. car = (0,255,255,intensity)
     # 3. ped = (255,0,255, intensity)
     # 4. sign = (255,255,0,intensity)
     # 5. truck = (0,255,0, intensity)
     rect = Image.new('RGBA', (size, size))
-
-    im = Image.open(random_pic_path)
-    rect = Image.new('RGBA', (size, size))
     pdraw = ImageDraw.Draw(rect)
-    for i in classified_img:
-        offset = (i[0],i[1])
-        object_index = 0
-        if (i[2][i[2].argmax()] >= treshold):
-            object_index = i[2].argmax() + 1
-        pdraw.rectangle([0, 0, size, size],
-                        fill=object[object_index], outline=object[object_index])
-        im.paste(rect,offset, mask=rect)
+    for xy, cl in classified_img:
+        x, y = xy
+        offset = (x, y)
+        object_index = cl.argmax()
+        if (cl[object_index] >= treshold):
+            # object_index = cl.argmax()
+            pdraw.rectangle([0, 0, size, size], fill=object[object_index], outline=object[object_index])
+            im.paste(rect,offset, mask=rect)
     return np.array(im)
 
 
+def shade2dv2(shape: (), classified_img, size: int, intensity: int, treshold:float =.90):
+    intens = intensity / 255.0
+    object = [(0, 255, 255), (255, 0, 255), (255, 255, 0), (0, 255, 0)]
+
+    colors = [np.multiply(m, intens) for m in object]
+
+    # 1. nothing = (0,0,0,0)
+    # 2. car = (0,255,255,intensity)
+    # 3. ped = (255,0,255, intensity)
+    # 4. sign = (255,255,0,intensity)
+    # 5. truck = (0,255,0, intensity)
+    # rect = Image.new('RGBA', (size, size))
+    arr2 = np.zeros(shape=(shape))
+
+    for x, y, cls in classified_img:
+        mx = cls.argmax()
+        if mx > treshold:
+            lable = int(cls[mx])
+            l = colors[lable]
+
+            arr2[y:(y + size), x:(x + size)] += l
+
+
+    return arr2
+
+
+def classicer(array: np.ndarray):
+    darker = lambda t: 255 - t
+    vfunc = np.vectorize(darker)
+    midx = len(array) // 2
+    a = vfunc(array[midx:midx + 4])
+
+    return Img.static_normalized(a)
+
+
+def out(img: Image, classifier:callable):
+    ttot = time.time()
+    tn = ThomasNet()
+    # clsfy = np.vectorize(classifier)
+
+    arr = np.asarray(img.convert('L'))
+
+    tslide = time.time()
+    coor, slices  = slide(arr, tn.size, tn.size)
+    tslide = time.time() - tslide
+    tclasfy = time.time()
+    # c = []
+    # for x, y, e in b:
+    #     c.append((x, y, classifier(e)))
+    r = tn.run_nn(slices, 3, 0.552)
+
+
+    tclasfy = time.time() - tclasfy
+
+    c = zip(coor, r)
+
+    tshade = time.time()
+    a = shade2d(img, c, tn.size, 120, .90)
+    tshade = time.time() - tshade
+
+    ttot = time.time() - ttot
+
+    print('slide', tslide)
+    print('classify', tclasfy)
+    print('shade', tshade)
+    print('tot', ttot)
+    return a
 
 
 
+if __name__ == '__main__':
+    a = out(Image.open(random_pic_path), classicer)
+    Image.fromarray(a).show()
 
-img = Image.open(random_pic_path)
-arr = np.asarray(img)
 
-print(shade2d(slidy_mac_slideface(arr, 60, 60, classic), 60,50))
 
 # img = Image.open(random_pic_path)
 # arr = np.asarray(img)
