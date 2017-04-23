@@ -42,6 +42,10 @@ class LoadProcess():
 	def wait(self):
 		self.process.join()
 
+	def await_batch(self):
+		self.wait()
+		return self.get_batch()
+
 	def next_batch(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y, ):
 		x, y = self.loader.get_next_batch_unstacked(batch_size, images_used, is_training)
 		xx = np.concatenate(x)
