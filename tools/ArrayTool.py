@@ -1,11 +1,13 @@
+import os
 import time
+
+import numpy as np
 from PIL import Image
 from PIL import ImageDraw
-import numpy as np
 
 from image.Image import Img
-from learning.SlidingWindowV2 import slidy_mac_slideface, classic, slide, classify
-import os, itertools
+from learning.SlidingWindowV2 import slide
+from learning.thomasnetv2 import ThomasNet
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
@@ -24,7 +26,8 @@ def draw2d(array2d: np.ndarray, xmin: int, ymin: int, xmax: int, ymax: int, colo
 
 
 def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: float=.90):
-    object = [(0,0,0,0), (0,255,255,intensity), (255,0,255, intensity), (255,255,0,intensity), (0,255,0, intensity), (0,0,0,0)]
+    object = [(0, 255, 255, intensity), (0,0,255,intensity), (255,0,0, intensity), (0,255,0,intensity)]
+    # sign:turkis  ped:blue car:rød truck:grønn
     # 1. nothing = (0,0,0,0)
     # 2. car = (0,255,255,intensity)
     # 3. ped = (255,0,255, intensity)
@@ -32,14 +35,14 @@ def shade2d(im:Image , classified_img, size: int, intensity: int = 1, treshold: 
     # 5. truck = (0,255,0, intensity)
     rect = Image.new('RGBA', (size, size))
     pdraw = ImageDraw.Draw(rect)
-    for i in classified_img:
-        offset = (i[0],i[1])
-        object_index = 0
-        if (i[2][i[2].argmax()] >= treshold):
-            object_index = i[2].argmax() + 1
-        pdraw.rectangle([0, 0, size, size],
-                        fill=object[object_index], outline=object[object_index])
-        im.paste(rect,offset, mask=rect)
+    for xy, cl in classified_img:
+        x, y = xy
+        offset = (x, y)
+        object_index = cl.argmax()
+        if (cl[object_index] >= treshold):
+            # object_index = cl.argmax()
+            pdraw.rectangle([0, 0, size, size], fill=object[object_index], outline=object[object_index])
+            im.paste(rect,offset, mask=rect)
     return np.array(im)
 
 
@@ -68,34 +71,6 @@ def shade2dv2(shape: (), classified_img, size: int, intensity: int, treshold:flo
 
     return arr2
 
-def out(img: Image, classifier:callable):
-    ttot = time.time()
-    # clsfy = np.vectorize(classifier)
-
-    arr = np.asarray(img)
-
-    tslide = time.time()
-    b = slide(arr, 15, 60)
-    tslide = time.time() - tslide
-
-    tclasfy = time.time()
-    c = []
-    for x, y, e in b:
-        c.append((x, y, classifier(e)))
-    tclasfy = time.time() - tclasfy
-
-    tshade = time.time()
-    a = shade2d(img, c, 60, 25, .70)
-    tshade = time.time() - tshade
-
-    ttot = time.time() - ttot
-
-    print('slide', tslide)
-    print('classify', tclasfy)
-    print('shade', tshade)
-    print('tot', ttot)
-    Image.fromarray(a, mode='RGB').show()
-
 
 def classicer(array: np.ndarray):
     darker = lambda t: 255 - t
@@ -105,9 +80,45 @@ def classicer(array: np.ndarray):
 
     return Img.static_normalized(a)
 
-if __name__ == '__main__':
-    out(Image.open(random_pic_path), classicer)
 
+def out(img: Image, classifier:callable):
+    ttot = time.time()
+    tn = ThomasNet()
+    # clsfy = np.vectorize(classifier)
+
+    arr = np.asarray(img.convert('L'))
+
+    tslide = time.time()
+    coor, slices  = slide(arr, tn.size, tn.size)
+    tslide = time.time() - tslide
+    tclasfy = time.time()
+    # c = []
+    # for x, y, e in b:
+    #     c.append((x, y, classifier(e)))
+    r = tn.run_nn(slices, 3, 0.552)
+
+
+    tclasfy = time.time() - tclasfy
+
+    c = zip(coor, r)
+
+    tshade = time.time()
+    a = shade2d(img, c, tn.size, 120, .90)
+    tshade = time.time() - tshade
+
+    ttot = time.time() - ttot
+
+    print('slide', tslide)
+    print('classify', tclasfy)
+    print('shade', tshade)
+    print('tot', ttot)
+    return a
+
+
+
+if __name__ == '__main__':
+    a = out(Image.open(random_pic_path), classicer)
+    Image.fromarray(a).show()
 
 
 

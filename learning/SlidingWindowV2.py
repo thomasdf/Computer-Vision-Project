@@ -32,7 +32,8 @@ def classic(array:np.ndarray):
 
 
 def slide(array: np.ndarray, stride: int, size: int):
-	slice = []
+	coordinates = []
+	slices = []
 
 	for y in range(0, len(array) - size, stride):
 
@@ -41,9 +42,10 @@ def slide(array: np.ndarray, stride: int, size: int):
 
 			# a = draw2d(a, x, y, (x + size), (y + size))
 
-			slice.append((x, y, arr.ravel()))
-
-	return slice
+			coordinates.append((x, y))
+			slices.append(arr.ravel())
+	stacked_slice = np.vstack(slices)
+	return coordinates, stacked_slice
 
 def classify(array:np.ndarray, classifier:callable):
 	return classifier(array)
