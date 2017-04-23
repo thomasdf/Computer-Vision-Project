@@ -6,37 +6,7 @@ import time
 from tensorflow.python.client import device_lib
 from load.MainLoader import labels
 
-# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
 from load.MainLoader import MainLoader
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-print(device_lib.list_local_devices())
-
-###########################################################################################
-###                                 THINGS                                              ###
-###########################################################################################
-
-# data loader
-test_set_size = 0.1  # fraction of dataset used as test-set
-loader = MainLoader(28, test_set_size)
-print("loader initialized")
-
-# data things
-batch_size = 500
-num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size))
-
-# training things
-num_epochs = 1
-dropout_rate = 0.2
-lr = 0.00001
-
-# classifier things
-size = 28  # (X * X size)
-n_classes = len(labels)
-
-# tensorflow things
-x = tf.placeholder("float", [None, size * size])
-y = tf.placeholder("float")
 
 
 ###########################################################################################
@@ -150,5 +120,34 @@ def train_neural_network(x):
 				print("Calculating accuracy. ", "{:10.2f}".format((_ / num_batches) * 100), "% complete.")
 			print("Epoch Accuracy: ", epoch_acc / num_batches)
 
+if __name__ == '__main__':
+	os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+	print(device_lib.list_local_devices())
 
-train_neural_network(x)
+	###########################################################################################
+	###                                 THINGS                                              ###
+	###########################################################################################
+
+	# data loader
+	test_set_size = 0.1  # fraction of dataset used as test-set
+	loader = MainLoader(28, test_set_size)
+	print("loader initialized")
+
+	# data things
+	batch_size = 500
+	num_batches = int(np.ceil((len(loader.data) * (1 - test_set_size)) / batch_size))
+
+	# training things
+	num_epochs = 1
+	dropout_rate = 0.2
+	lr = 0.00001
+
+	# classifier things
+	size = 28  # (X * X size)
+	n_classes = len(labels)
+
+	# tensorflow things
+	x = tf.placeholder("float", [None, size * size])
+	y = tf.placeholder("float")
+
+	train_neural_network(x)

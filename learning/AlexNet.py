@@ -1,70 +1,23 @@
 import multiprocessing
 
-import functools
+
 import numpy as np
 import tensorflow as tf
-import os
+
 import matplotlib.pyplot as plt
 import ctypes
 
 import time
 
-# from multiprocessing import freeze_support
-# from tensorflow.python.client import device_lib
-# from load.MainLoader import labels
-
-# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
-from PIL import Image
-
-from async.LoadBatch import next_batch_queue, next_batch_queue_2, next_batch_queue_3, next_batch_arr
-from load import labels
-from load.MainLoader import MainLoader
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-# print(device_lib.list_local_devices())
-
-###########################################################################################
-###                                 THINGS                                              ###
-###########################################################################################
-
-base_dir = os.path.dirname(os.path.dirname(__file__))
-
-# data loader
-test_set_rate = 0.01  # fraction of dataset used as test-set
-loader = MainLoader(224, test_set_rate)
-print("loader initialized")
-
-# data things
-batch_size = 10
-image_load_size = batch_size // 2
-test_size = len(loader.data) * (test_set_rate)
-num_train_batches = int(np.ceil(len(loader.trainindexes) / image_load_size))
-num_test_batches =  int(np.ceil(len(loader.testindexes) / batch_size))
-# training things
-num_epochs = 10
-dropout_rate = 0.2
-lr = 0.001
-
-# classifier things
-size = 224 # (X * X size)
-n_classes = len(labels)
-flat_batch_size = size* size * batch_size
-flat_labels_size = batch_size*n_classes
-batch_shape = (batch_size, size*size)
-labels_shape = (batch_size, n_classes)
-
-
-# tensorflow things
-x = tf.placeholder("float", [None, 224*224])
-y = tf.placeholder("float")
-
-#mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-#n_classes = 10
+import os
 
 
 ###########################################################################################
 ###                                 TF/NN                                               ###
 ###########################################################################################
+from load import labels
+from load.MainLoader import MainLoader
+
 
 def neural_network_model(x, is_training: bool = True):
 	"""Defines the neural network model. Output is a n_labels long array"""
@@ -200,10 +153,16 @@ def train_neural_network(x):
 	x_arr_batch = multiprocessing.Array(ctypes.c_double, flat_batch_size)
 	y_arr_batch = multiprocessing.Array(ctypes.c_double, flat_labels_size)
 
-	train_process = multiprocessing.Process(target=loader.next_batch_async_arr,
-	                                        args=(batch_size, image_load_size, True, x_arr_batch, y_arr_batch))
+	processes = {}
+	pnum = 0
 
-	train_process.start()
+	processes[pnum] = multiprocessing.Process(target=loader.next_batch_async_arr,
+	                                        args=(batch_size, image_load_size, True, x_arr_batch, y_arr_batch))
+	processes[pnum].start()
+	pnum  += 1
+	# train_process.start()
+
+
 	# train_process.join()
 	#
 	# x_b = np.frombuffer(x_arr_batch.get_obj()).reshape(batch_shape)
@@ -232,8 +191,9 @@ def train_neural_network(x):
 				t_train_start = time.time()
 
 				#todo: join
-
-				train_process.join()
+				for n in processes.values():
+					n.join()
+				processes.clear()
 
 				x_b = np.frombuffer(x_arr_batch.get_obj()).reshape(batch_shape)
 				y_b = np.frombuffer(y_arr_batch.get_obj()).reshape(labels_shape)
@@ -244,10 +204,10 @@ def train_neural_network(x):
 
 				#todo: start
 
-				train_process = multiprocessing.Process(target=loader.next_batch_async_arr,
+				processes[pnum] = multiprocessing.Process(target=loader.next_batch_async_arr,
 				                                        args=(batch_size, image_load_size, True, x_arr_batch, y_arr_batch))
-
-				train_process.start()
+				processes[pnum].start()
+				pnum += 1
 
 				t_train_end  = time.time()
 				epoch_cost += c
@@ -301,6 +261,43 @@ def run_nn(x, epoch, acc):
 
 
 if __name__ == '__main__':
+	os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+	# print(device_lib.list_local_devices())
+
+	###########################################################################################
+	###                                 THINGS                                              ###
+	###########################################################################################
+
+	base_dir = os.path.dirname(os.path.dirname(__file__))
+
+	# data loader
+	test_set_rate = 0.01  # fraction of dataset used as test-set
+	loader = MainLoader(224, test_set_rate)
+	print("loader initialized")
+
+	# data things
+	batch_size = 10
+	image_load_size = batch_size // 2
+	test_size = len(loader.data) * (test_set_rate)
+	num_train_batches = int(np.ceil(len(loader.trainindexes) / image_load_size))
+	num_test_batches = int(np.ceil(len(loader.testindexes) / batch_size))
+	# training things
+	num_epochs = 10
+	dropout_rate = 0.2
+	lr = 0.001
+
+	# classifier things
+	size = 224  # (X * X size)
+	n_classes = len(labels)
+	flat_batch_size = size * size * batch_size
+	flat_labels_size = batch_size * n_classes
+	batch_shape = (batch_size, size * size)
+	labels_shape = (batch_size, n_classes)
+
+	# tensorflow things
+	x = tf.placeholder("float", [None, 224 * 224])
+	y = tf.placeholder("float")
+
 	# freeze_support()
 	train_neural_network(x)
-#run_nn(x, 0, 0.01)
+# run_nn(x, 0, 0.01)

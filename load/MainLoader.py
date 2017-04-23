@@ -1,24 +1,10 @@
 import csv
-import os
-import random
-import time
 
 import numpy as np
 from PIL import Image
 
 from image.Image import Img
 
-# load_images()
-# from tools.SplitSet import hash_split
-#
-# base_dir = os.path.dirname(os.path.dirname(__file__))
-#
-# car_path = base_dir + '/datasets/object-detection-crowdai/labels.csv'
-# sign_path = base_dir + '/signs/csv/signs.csv'
-#
-# car_img_path = base_dir + '/datasets/object-detection-crowdai/'
-# sign_img_path = base_dir + '/datasets/traffic-signs/GTSRB/Final_Training/Images/'
-# labels = ['signs', 'Pedestrian', 'Car', 'Truck']
 from load import car_path, sign_path, car_img_path, labels, sign_img_path
 
 

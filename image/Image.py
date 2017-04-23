@@ -4,14 +4,8 @@ import PIL
 import numpy as np
 from PIL import Image
 
-range_map = lambda input_start, input_end, output_start, output_end: \
-	lambda input: output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start)
+from image import static_num_labels, static_mode, unnormalize_map
 
-normalize_map = range_map(0, 255, 0, 1)
-unnormalize_map = lambda x: int(round(range_map(0, 1, 0, 255)(x)))
-
-static_mode = 'L'
-static_num_labels = 4
 
 def sign():
 	sign = random.randint(0, 1)
@@ -178,9 +172,7 @@ class Img:
 	@classmethod
 	def cropfunc(cls, array: np.ndarray, sampel_img_size: int, chop_coordinates: [int], is_training: bool):
 
-
 		if is_training:
-
 			arr = cls.randcrop(array, sampel_img_size)
 
 		else:
