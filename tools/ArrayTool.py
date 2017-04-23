@@ -81,7 +81,7 @@ def classicer(array: np.ndarray):
     return Img.static_normalized(a)
 
 
-def out(img: Image, classifier):
+def out(img: Image, classifier, epoch: int, acc: float):
     ttot = time.time()
     #
     # clsfy = np.vectorize(classifier)
@@ -95,7 +95,7 @@ def out(img: Image, classifier):
     # c = []
     # for x, y, e in b:
     #     c.append((x, y, classifier(e)))
-    r = classifier.run_nn(slices, 3, 0.552)
+    r = classifier.run_nn(slices, epoch, acc)
 
 
     tclasfy = time.time() - tclasfy
@@ -117,7 +117,7 @@ def out(img: Image, classifier):
 
 
 if __name__ == '__main__':
-    a = out(Image.open(random_pic_path), ThomasNet())
+    a = out(Image.open(random_pic_path), ThomasNet(), 3, 0.552)
     Image.fromarray(a).show()
 
 

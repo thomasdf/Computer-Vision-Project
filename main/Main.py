@@ -20,7 +20,7 @@ def main():
 	#ThomasNet()
 	#AlexNet()
 
-	a = ArrayTool.out(Image.open(random_pic_path), ThomasNet())
+	a = ArrayTool.out(Image.open(random_pic_path), ThomasNet(), 3, 0.552)
 	Image.fromarray(a).show()
 
 if __name__ == '__main__':
