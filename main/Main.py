@@ -23,8 +23,11 @@ def main():
 	classifier.init_loader()
 	classifier.train_neural_network()
 
-	# a = ArrayTool.out(Image.open(random_pic_path), classifier, 9, 0.582, .3)
+	# a = ArrayTool.out(Image.open(random_pic_path), classifier, 9, 0.582, .25, True)
 	# Image.fromarray(a).show()
+
+	classifier.train_neural_network()
+
 
 
 if __name__ == '__main__':

@@ -21,19 +21,29 @@ def load_csv(csvpath: str):
 			res.append(tuple)
 	return res
 
+save_path = 'C:/Users/kiwi/Computer-Vision-Project/load/loadeddata.csv'
+def saveCSV(filename, entries, rownames=(("Filename", "Width", "Height", "Roi.X1", "Roi.Y1", "Roi.X2", "Roi.Y2", "ClassId"))):
+	with open(filename, 'w') as file:
+		writer = csv.writer(file, lineterminator='\n')
+		writer.writerow(rownames)
+		writer.writerows(entries)
 
 class MainLoader:
 
 	def __init__(self, size: int, testrate:float = 0.1):
 		self.size = size
 		self.reset_index()
-		self.data = self.load_images()
+		self.data = self.load_images_csv()
 		self.testindexes, self.trainindexes = self.split_data(testrate, len(self.data))
 		self.test_chops = self.test_choppers()
 
 	def reset_index(self):
 		self.index_test = 0
 		self.index_training = 0
+
+	def load_images_csv(self):
+		return load_csv(save_path)
+
 
 	def load_images(self):
 		car_data = load_csv(car_path)  # xmin, ymin, xmax, ymax, filename, label, url
@@ -56,7 +66,7 @@ class MainLoader:
 				continue
 			data.append((xmin, ymin, xmax, ymax, (sign_img_path + filename), 0))
 
-		len(data)
+		saveCSV(save_path, data, ('xmin', 'ymin', 'xmax', 'ymax', 'filepath', 'label'))
 		return data  # xmin, ymin, xmax, ymax, filepath, label
 
 	def split_data(self, testrate: float, data_length: int):
@@ -121,7 +131,7 @@ class MainLoader:
 				arr_crop = Img.cropfunc(arr2d, self.size, croparg(index), is_training)
 				arr1d = arr_crop.ravel()
 				batch.append(arr1d)
-				labels.append(Img.to_onehot(label))
+				labels.append(Img.to_onehot(int(label)))
 
 		# for image in batch:
 		# 	assert image.shape[0] == 224*224
@@ -216,7 +226,7 @@ class MainLoader:
 				arr_crop = Img.cropfunc(arr2d, self.size, croparg(index), is_training)
 				arr1d = arr_crop.ravel()
 				batch.append(arr1d)
-				labels.append(Img.to_onehot(label))
+				labels.append(Img.to_onehot(int(label)))
 
 		# for image in batch:
 		# 	assert image.shape[0] == 224*224
@@ -238,20 +248,20 @@ class MainLoader:
 			# return self.__get_test_batch(batch_size, self.data, self.testindexes, False)
 
 
-	def next_batch_async(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y, lock):
-		# self.__get_next_batch_queued(batch_size, images_used, is_training, batch_x, batch_y, lock)
-		pass
-
-	def next_batch_async_arr(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y,):
-		x, y = self.get_next_batch_unstacked(batch_size, images_used, is_training)
-		xx = np.concatenate(x)
-		yy = np.concatenate(y)
-
-		xarr = np.frombuffer(batch_x.get_obj())
-		yarr = np.frombuffer(batch_y.get_obj())
-
-		np.copyto(xarr, xx)
-		np.copyto(yarr, yy)
+	# def next_batch_async(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y, lock):
+	# 	# self.__get_next_batch_queued(batch_size, images_used, is_training, batch_x, batch_y, lock)
+	# 	pass
+	#
+	# def next_batch_async_arr(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y,):
+	# 	x, y = self.get_next_batch_unstacked(batch_size, images_used, is_training)
+	# 	xx = np.concatenate(x)
+	# 	yy = np.concatenate(y)
+	#
+	# 	xarr = np.frombuffer(batch_x.get_obj())
+	# 	yarr = np.frombuffer(batch_y.get_obj())
+	#
+	# 	np.copyto(xarr, xx)
+	# 	np.copyto(yarr, yy)
 
 # print('Allah!')
 # n = MainLoader(224, 0.1)
@@ -262,3 +272,41 @@ class MainLoader:
 # print('batchy macbatchface')
 # n.next_batch(1000, False)
 # print('hei')
+
+if __name__ == '__main__':
+	s = 100
+	size = 25
+	test_s = 0.01
+	shape = (size, size)
+
+	ml = MainLoader(size, test_s)
+	ml2 = MainLoader(size, test_s)
+
+	xy = ml.next_batch(s, s, False)
+	# ml.reset_index()
+	xy2 = ml2.next_batch(s, s, False)
+
+	x, y = xy
+
+	for i in x[30:31]:
+		a = np.multiply(i, 255.0)
+		Image.fromarray(a.reshape(shape)).show()
+
+	x2, y2 = xy2
+	for i in x2[30:31]:
+		a = np.multiply(i, 255.0)
+		Image.fromarray(a.reshape(shape)).show()
+
+
+
+'''
+000 = {float64} 0.149019607843
+001 = {float64} 0.141176470588
+002 = {float64} 0.133333333333
+003 = {float64} 0.129411764706
+004 = {float64} 0.133333333333
+005 = {float64} 0.133333333333
+006 = {float64} 0.137254901961
+007 = {float64} 0.137254901961
+
+'''

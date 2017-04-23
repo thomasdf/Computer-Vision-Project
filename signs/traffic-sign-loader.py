@@ -12,11 +12,6 @@ path = base_dir + '/datasets/traffic-signs/GTSRB/Final_Training/Images/'
 save_path = base_dir + '/signs/csv/'
 
 
-def saveCSV(filename, entries, rownames = (("Filename", "Width", "Height", "Roi.X1", "Roi.Y1", "Roi.X2", "Roi.Y2", "ClassId"))):
-	with open(save_path + filename, 'w') as file:
-		writer = csv.writer(file, lineterminator='\n')
-		writer.writerow(rownames)
-		writer.writerows(entries)
 
 def concatCSVS():
 	csv_format = path + '000{0:02d}/GT-000{0:02d}.csv'
