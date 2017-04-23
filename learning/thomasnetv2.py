@@ -183,7 +183,7 @@ class ThomasNet():
 					saver.save(sess, self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(
 						acc) + ".checkpoint")
 
-				if epoch % plot_modulo == 0:
+				if epoch % plot_modulo == 0 and epoch != 0:
 					plt.figure()
 					gen, = plt.plot(epochs, accs, label='accuracy vs epoch')
 					plt.legend()
