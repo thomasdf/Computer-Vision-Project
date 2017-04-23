@@ -230,7 +230,7 @@ class ThomasNet():
 
 		# Variables
 		#classifier
-		self.size = 72  # (X * X size)
+		self.size = 32  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.2
 		self.lr = 1e-5
