@@ -132,6 +132,7 @@ class DeeperNet():
 	####################################################################
 
 	def train_neural_network(self):
+		self.init()
 		self.init_loader()
 		x = self.x
 		accs = []
@@ -155,7 +156,7 @@ class DeeperNet():
 		batch_accuracy_modulo = 50
 		epoch_lognum = 1  # epoch info interval
 		epoch_save_modulo = 1  # save interval
-		plot_modulo = 5  # plot interval
+		plot_modulo = 100   # plot interval
 
 		with tf.Session() as sess:
 			sess.run(init)
@@ -240,14 +241,6 @@ class DeeperNet():
 	###                               class-things                   ###
 	####################################################################
 
-	def init(self):
-		self.test_size = len(self.loader.data) * (self.test_set_rate)
-		self.num_train_batches = int(
-			(np.ceil(len(self.loader.trainindexes) / self.image_load_size)) * self.dataset_fraction)
-		self.num_test_batches = max(
-			int((np.ceil(len(self.loader.testindexes) / self.batch_size)) * self.dataset_fraction), 1)
-		# training things
-
 
 
 
@@ -257,14 +250,14 @@ class DeeperNet():
 
 		# Variables
 		# classifier
-		self.size = 24  # (X * X size)
+		self.size = 32  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.4
-		self.lr = 1e-7
+		self.lr = 1e-8
 
 		# loader
-		self.batch_size = 500
-		self.image_load_size = 25
+		self.batch_size = 1000
+		self.image_load_size = 100
 		self.test_set_rate = 0.005  # fraction of dataset used as test-set
 		self.dataset_fraction = 1  # fraction of whole dataset used
 
@@ -283,3 +276,9 @@ class DeeperNet():
 		self.x = tf.placeholder("float", [None, self.size * self.size])
 		self.y = tf.placeholder("float")
 
+		self.test_size = len(self.loader.data) * (self.test_set_rate)
+		self.num_train_batches = int(
+			(np.ceil(len(self.loader.trainindexes) / self.image_load_size)) * self.dataset_fraction)
+		self.num_test_batches = max(
+			int((np.ceil(len(self.loader.testindexes) / self.batch_size)) * self.dataset_fraction), 1)
+		# training things
