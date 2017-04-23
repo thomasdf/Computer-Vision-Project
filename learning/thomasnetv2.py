@@ -48,7 +48,7 @@ class ThomasNet():
 			accumulated_acc += acc.eval({self.x: test_x, self.y: test_y})
 			if i % max((self.num_test_batches // 10),1) == 0:
 				self.print_acc_progress(i * 10)
-		self.print_acc_info(accumulated_acc / 5)
+		self.print_acc_info(accumulated_acc / self.num_test_batches)
 		self.loader.index_test = 0
 		return accumulated_acc
 
@@ -230,7 +230,7 @@ class ThomasNet():
 
 		# Variables
 		#classifier
-		self.size = 72  # (X * X size)
+		self.size = 32  # (X * X size)
 		self.num_epochs = 10
 		self.dropout_rate = 0.2
 		self.lr = 1e-5
