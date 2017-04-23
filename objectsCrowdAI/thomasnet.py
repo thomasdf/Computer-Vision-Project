@@ -1,11 +1,7 @@
-import numpy
 import tensorflow as tf
-from PIL import Image
-from tensorflow.examples.tutorials.mnist import input_data
 import os
 from tensorflow.python.client import device_lib
 
-from image.Image import Img
 from load.MainLoader import MainLoader
 
 # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
