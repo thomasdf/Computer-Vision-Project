@@ -24,28 +24,37 @@ def main():
 	os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 	# from learning.AlexNet import AlexNet
 	from learning.thomasnetv2 import ThomasNet
-	from learning.deepernet import DeeperNet
-	classifier = DeeperNet()
-	classifier.init_loader()
+	# from learning.deepernet import DeeperNet
+	# classifier = DeeperNet()
+	# classifier.init_loader()
+	# # classifier.train_neural_network()
+	#
+	# a = ArrayTool.out(Image.open(random_pic_path), classifier, 9, 0.582, .25, True)
+	# # Image.fromarray(a).show()
+
 	# classifier.train_neural_network()
 
-	a = ArrayTool.out(Image.open(random_pic_path), classifier, 9, 0.582, .25, True)
-	# Image.fromarray(a).show()
-
-	classifier.train_neural_network()
 	size = 32
 	LR = 1e-3
+	EPOCHS = 10
+
 	model = alexnet(size, size, LR, 4)
+	hard = 'models/cvp-0.001-ravnanetv2-10-epochs-data.model'
+	MODEL_NAME = hard
+		# 'cvp-{}-{}-{}-epochs-data.model'.format(LR, 'ravnanet', EPOCHS)
+	model.load(MODEL_NAME)
+
 	img = Image.open(random_pic_path)
 
-	a = new_out(img, size, model)
+	a = new_out(img, size, model, 0.30, False)
+	Image.fromarray(a).show()
 
 
 def test():
 	size = 32
 	LR = 1e-3
 	EPOCHS = 10
-	MODEL_NAME = base_dir + '/main/log/cvp-{}-{}-{}-epochs-300K-data.model'.format(LR, 'ravnanet', EPOCHS)
+	# MODEL_NAME = base_dir + '/main/log/cvp-{}-{}-{}-epochs-300K-data.model'.format(LR, 'ravnanet', EPOCHS)
 	model = alexnet(size, size, LR, 4)
 	# model.load(MODEL_NAME)
 	img = Image.open(random_pic_path)
@@ -102,7 +111,7 @@ def new_out(img: Image, size: int, model, treshold: float = .70, scaled_shade: b
 
 	tclasfy = time.time() - tclasfy
 	c = zip(coor, r)
-	a = shade2d(img, c, size, 255, treshold, scaled_shade)
+	a = shade2d(img, c, size, 160, treshold, scaled_shade)
 
 	tshade = time.time()
 	tshade = time.time() - tshade
@@ -121,4 +130,4 @@ if __name__ == '__main__':
 	#
 	# multiprocessing.freeze_support()
 	# train_deeper()
-	test()
+	main()

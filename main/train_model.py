@@ -49,7 +49,7 @@ def train(size: int):
 
             print('\n\n\nDONE EPOCH',i , 'hm load', j)
             a = new_out(img, size, model)
-            Image.fromarray(a.shape(size, size)).show()
+            Image.fromarray(a).show()
 
 
 # C:\Users\kiwi\AppData\Local\Programs\Python\Python35\python.exe -m tensorflow.tensorboard --logdir=foo:C:/Users/kiwi/IdeaProjects/Computer-Vision-Project/main/log

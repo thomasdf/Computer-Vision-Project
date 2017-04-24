@@ -76,13 +76,13 @@ def shade2d(im: Image, classified_img, size: int, intensity: int = 1, treshold: 
 	for xy, cl in classified_img:
 		x, y = xy
 		offset = (x, y)
-		object_index = cl.argmax()
+		object_index = cl.index(max(cl))
 		scale = cl[object_index]
 		if (dont_use_treshhold or scale >= treshold):
 			# object_index = cl.argmax()
 
 			color = list(object[object_index])
-			color[3] = int(color[3] * scale) if scaled_shader else color[3]
+			color[3] = int(255 * scale) if scaled_shader else color[3]
 			pdraw.rectangle([0, 0, size, size], fill=tuple(color), outline=object[object_index])
 			im.paste(rect, offset, mask=rect)
 	return np.array(im)
