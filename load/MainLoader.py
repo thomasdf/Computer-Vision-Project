@@ -58,8 +58,8 @@ class MainLoader:
 
 
 
-
-	def store_images(self, shuffle: bool = True):
+	@classmethod
+	def store_images(cls, size:int, shuffle: bool = True):
 
 	## load data
 		car_data = load_csv(car_path)  # xmin, ymin, xmax, ymax, filename, label, url
@@ -106,12 +106,16 @@ class MainLoader:
 			ImageFile.LOAD_TRUNCATED_IMAGES = True
 			img = img.convert('L')
 			img = img.crop((int(x0), int(y0), int(x1), int(y1)))
-			img = img.resize((self.size, self.size))
-			arr = np.asarray(img).ravel()
+		## resize image
+			# img = img.resize((self.size, self.size))
+			arr2d = np.asarray(img)
+			arr2d = Img.randcrop(arr2d, size)
+		## end
+			arr = arr2d.ravel()
 			# arr = Img.static_normalized(arr)
 			the_data.append([arr, Img.to_onehot(int(l))])
 
-		np.save('balanced_data_set.npy', the_data) # [[ array([int(size*size)]) ,[int(4)] ]]
+		np.save('balanced_data_set_v2.npy', the_data) # [[ array([int(size*size)]) ,[int(4)] ]]
 
 	def load_images(self):
 		car_data = load_csv(car_path)  # xmin, ymin, xmax, ymax, filename, label, url
@@ -318,10 +322,10 @@ class MainLoader:
 
 
 if __name__ == '__main__':
-	ml = MainLoader(32, 0.1)
+	# ml = MainLoader(32, 0.1)
 	# ml.store_images()
-	ml.load_images_npy()
-
+	# ml.load_images_npy()
+	MainLoader.store_images(32)
 
 	# def next_batch_async(self, batch_size: int, images_used: int, is_training: bool, batch_x, batch_y, lock):
 	# 	# self.__get_next_batch_queued(batch_size, images_used, is_training, batch_x, batch_y, lock)

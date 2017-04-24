@@ -18,11 +18,11 @@ def train(size: int):
 
     img = Image.open(random_pic_path)
 
-    MODEL_NAME = 'cvp-{}-{}-{}-epochs-data.model'.format(LR, 'ravnanet', EPOCHS)
+    MODEL_NAME = 'models/cvp-0.001-ravnanetv2-10-epochs-data.model'
 
     save_dir = base_dir + '/savedmodels/ravnanet'
 
-    data_set_path = base_dir + '/load/balanced_data_set.npy'
+    data_set_path = base_dir + '/load/balanced_data_set_v2.npy'
 
     model = alexnet(WIDTH, HEIGHT, LR, 4)
 
@@ -52,7 +52,7 @@ def train(size: int):
             Image.fromarray(a).show()
 
 
-# C:\Users\kiwi\AppData\Local\Programs\Python\Python35\python.exe -m tensorflow.tensorboard --logdir=foo:C:/Users/kiwi/IdeaProjects/Computer-Vision-Project/main/log
+# C:\Users\kiwi\AppData\Local\Programs\Python\Python35\python.exe -m tensorflow.tensorboard --logdir=foo:C:/Users/kiwi/IdeaProjects/Computer-Vision-Project/main/models
 
 if __name__ == '__main__':
     train(32)
