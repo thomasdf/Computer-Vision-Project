@@ -228,9 +228,9 @@ class DeeperNet():
 
 		logits = self.neural_network_model(self.x, False)
 		chachpoint_path = self.base_dir + "/savedmodels/thomasnet/epoch" + str(epoch) + "acc" + "{:1.3f}".format(acc) + '.checkpoint'
-		# saver = tf.train.Saver()
+		saver = tf.train.Saver()
 		with tf.Session() as sess:
-			saver = tf.train.import_meta_graph(chachpoint_path + '.meta')
+			# saver = tf.train.import_meta_graph(chachpoint_path + '.meta')
 			saver.restore(sess=sess, save_path=chachpoint_path)
 			# all_vars = tf.get_collection('vars')
 			# for v in all_vars:
